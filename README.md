@@ -4,7 +4,7 @@ I2CPS
 --------------------------
 *Unity Project Features*
 
-1. Haptic Touch X in Unity 
+1. Haptic Touch X in Unity    
 Use Assets: https://assetstore.unity.com/packages/tools/integration/haptics-direct-for-unity-v1-197034
 ```
 1. Actor : HapticPlugin

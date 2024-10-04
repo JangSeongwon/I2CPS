@@ -6,13 +6,9 @@ I2CPS
 
 1. Haptic Touch X in Unity
 ```
-1. Actor
-2. Collider
-3. Initializer(Haptic Swipe, Scene Control)
-
-
-
-
+1. Actor : HapticPlugin
+2. Collider : HapticCollider
+3. Haptic Initializer : SceneControl
 ```
 
 2. Doosan Robot in Unity
@@ -28,7 +24,7 @@ M1509 (6DOF)
 *ROS with Unity*
 
 ROS#: https://github.com/siemens/ros-sharp   
-URDF Importer: https://github.com/Unity-Technologies/URDF-Importer (ROSBridge URDF Importer와 충돌)   
+*URDF Importer: https://github.com/Unity-Technologies/URDF-Importer (ROSBridge URDF Importer와 충돌, ROS#만 사용)   
 
 1. Haptic Touch X
 ```

@@ -6,8 +6,9 @@ I2CPS
 
 1. Haptic Touch X in Unity
 ```
-
-
+1. Actor
+2. Collider
+3. Initializer(Haptic Swipe, Scene Control)
 
 
 

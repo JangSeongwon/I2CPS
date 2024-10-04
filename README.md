@@ -14,7 +14,8 @@ Use Assets: https://assetstore.unity.com/packages/tools/integration/haptics-dire
 
 2. Doosan Robot in Unity
 ```
-M1509 (6DOF)
+M1509 (6DOF): URDF
+*Currently with 6FTsensor and Simple Motor-Drill
 
 ```
 

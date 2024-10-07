@@ -17,6 +17,8 @@ Use Assets: https://assetstore.unity.com/packages/tools/integration/haptics-dire
 M1509 (6DOF): URDF
 *Currently with 6FTsensor and Simple Motor-Drill
 
+Need to change Links(Rigid Body) into Articulation Body (M1509 Reference to copy and paste its components)
+
 ```
 
 

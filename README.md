@@ -21,8 +21,6 @@ M1509 (6DOF): URDF
 
 
 --------------------------
-
---------------------------
 *ROS with Unity*
 
 ROS#: https://github.com/siemens/ros-sharp   

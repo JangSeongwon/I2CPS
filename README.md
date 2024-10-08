@@ -41,9 +41,12 @@ ROS topic Published: '/HapticInfo'
 
 ```
 2. ROS
+Using Rviz(Doosan Robot ROS Package)
+1. I2CPS_haptic : launching virtual mode of doosan robot simulation (jsw_haptic.launch)
+2. Python3 (dsr_Haptic_IK.py) : Moving Robot eef with [movel] & Haptic POS
 
-ROS topic to Unity: [JointStatePublisher] '/Jointstate'
-ROS topic subscribed in Unity with: [JointValueSubscriber]
+ROS topic to Unity: [JointStatePublisher] '/dsr01m1509/joint_states'
+ROS topic subscribed in Unity with: [JointValueSubscriber] 
 
 ```
 

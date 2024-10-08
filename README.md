@@ -33,9 +33,8 @@ ROS#: https://github.com/siemens/ros-sharp
 1. Haptic Touch X
 ```
 From Haptic
-
-
-To Haptic
+Use EndEffectorPublisher.cs from RosSharp
+ROS topic: /HapticInfo
 
 ```
 

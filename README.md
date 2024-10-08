@@ -34,7 +34,7 @@ ROS#: https://github.com/siemens/ros-sharp
 ```
 From Haptic
 Haptic information(Transform) sending: Use EndEffectorPublisher.cs from RosSharp
-ROS topic: /HapticInfo
+ROS topic Published: /HapticInfo
 
 ```
 

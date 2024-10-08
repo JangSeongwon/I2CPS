@@ -43,7 +43,7 @@ ROS topic Published: '/HapticInfo'
 2. ROS
 
 ROS topic to Unity: [JointStatePublisher] '/Jointstate'
-ROS topic subscribed in Unity with: [JointValeSubscriber]
+ROS topic subscribed in Unity with: [JointValueSubscriber]
 
 ```
 

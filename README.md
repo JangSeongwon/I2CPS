@@ -34,14 +34,15 @@ ROS#: https://github.com/siemens/ros-sharp
 ```
 From Haptic
 Haptic information(Transform) sending: Use EndEffectorPublisher.cs from RosSharp
-ROS topic Published: /HapticInfo
+ROS topic Published: '/HapticInfo'
 
 ```
 
 ```
 2. ROS
 
-
+ROS topic to Unity: JointStatePublisher '/Jointstate'
+ROS topic subscribed in Unity with JointValeSubscriber
 
 ```
 

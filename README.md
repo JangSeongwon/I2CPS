@@ -19,6 +19,8 @@ M1509 (6DOF): URDF
 
 m1509_ori: Need to change Links(Rigid Body) into Articulation Body (M1509 Reference to copy and paste its components)
 
+Collision : Adding Collisions
+
 ```
 
 

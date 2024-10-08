@@ -7,9 +7,9 @@ I2CPS
 1. Haptic Touch X in Unity    
 Use Assets: https://assetstore.unity.com/packages/tools/integration/haptics-direct-for-unity-v1-197034
 ```
-1. Actor : HapticPlugin
-2. Collider : HapticCollider
-3. Haptic Initializer : SceneControl
+1. Actor : [HapticPlugin]
+2. Collider : [HapticCollider]
+3. Haptic Initializer : [SceneControl]
 ```
 
 2. Doosan Robot in Unity
@@ -20,7 +20,7 @@ M1509 (6DOF): URDF
 m1509_ori: Need to change Links(Rigid Body) into Articulation Body (M1509 Reference to copy and paste its components)
 
 Collision : Adding Collisions
-Moved with Joint inputs: SetJointPositions
+Moved with Joint inputs: [SetJointPositions]
 
 ```
 
@@ -34,7 +34,7 @@ ROS#: https://github.com/siemens/ros-sharp
 1. Haptic Touch X
 ```
 From Haptic
-Haptic information(Transform) sending: Use EndEffectorPublisher.cs from RosSharp
+Haptic information(Transform) sending: Use [EndEffectorPublisher.cs] from RosSharp
 ROS topic Published: '/HapticInfo'
 
 ```
@@ -42,8 +42,8 @@ ROS topic Published: '/HapticInfo'
 ```
 2. ROS
 
-ROS topic to Unity: JointStatePublisher '/Jointstate'
-ROS topic subscribed in Unity with: JointValeSubscriber
+ROS topic to Unity: [JointStatePublisher] '/Jointstate'
+ROS topic subscribed in Unity with: [JointValeSubscriber]
 
 ```
 

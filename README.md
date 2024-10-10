@@ -38,7 +38,7 @@ ROS#: https://github.com/siemens/ros-sharp
 ```
 From Haptic
 Haptic information(Transform) sending: Use [EndEffectorPublisher.cs] from RosSharp
-ROS topic Published: '/HapticInfo'
+ROS topic Published: '/HapticInfo' in Approximately 25Hz
 
 ```
 
@@ -50,6 +50,9 @@ Using Rviz(Doosan Robot ROS Package)
 
 ROS topic to Unity: [JointStatePublisher] '/dsr01m1509/joint_states'
 ROS topic subscribed in Unity with: [JointValueSubscriber] (msg type: Sensor.JointState)
+
+*Moveit IK Solver time Problem
+Current vel 1000, acc 5000 / Threshold 1mm, 3mm Testing
 
 ```
 

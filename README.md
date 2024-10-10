@@ -20,7 +20,7 @@ M1509 (6DOF): URDF
 m1509_ori: Need to change Links(Rigid Body) into Articulation Body (M1509 Reference to copy and paste its components)
 
 Collision : Adding Collisions
-Moved with Joint inputs: [SetJointPositions]
+Moved with Joint inputs: [SetJointPositions in Initialization]
 
 3. Other used Assets
  - Grid Material 'https://assetstore.unity.com/packages/2d/textures-materials/gridbox-prototype-materials-129127?srsltid=AfmBOoowjbEvLqTxcaygvjJtN8hxCxJowGYixQxBeUa_0jl3p8vigAHM'
@@ -49,7 +49,7 @@ Using Rviz(Doosan Robot ROS Package)
 2. Python3 (dsr_Haptic_IK.py) : Moving Robot eef with [movel] & Haptic POS
 
 ROS topic to Unity: [JointStatePublisher] '/dsr01m1509/joint_states'
-ROS topic subscribed in Unity with: [JointValueSubscriber] 
+ROS topic subscribed in Unity with: [JointValueSubscriber] (msg type: Sensor.JointState)
 
 ```
 

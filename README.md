@@ -57,7 +57,8 @@ Current vel 1000, acc 5000 / Threshold 1mm, 3mm Testing
 ```
 ```
 Workspace
-ROS topic for ToolEnd: /ToolEnd
+ROStopic Distinguisher: /ToolEnd
+Coordinate: (x, y, z) = (-0.15 ~ 0.15, -0.005 ~ 0.16, 0.25 ~ 0.55)
 
 ```
 

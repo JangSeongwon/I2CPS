@@ -37,14 +37,13 @@ namespace RosSharp.RosBridgeClient
         {
             message.header.Update();
 
+            //Get global position of the ToolEnd 
             Vector3 position = PublishedTransform.position;
 
-            // Get position and rotation matrices from the Unity Transform
+            // Get rotation matrices from the Unity Transform
             Matrix4x4 localToWorldMatrix = PublishedTransform.localToWorldMatrix;
-
-            // Extract position and rotation from the matrices
+            // Extract rotation from the matrices
             Quaternion rotation = Quaternion.LookRotation(localToWorldMatrix.GetColumn(2), localToWorldMatrix.GetColumn(1));
-
             // Convert Quaternion to Euler angles
             Vector3 euler = rotation.eulerAngles;
 

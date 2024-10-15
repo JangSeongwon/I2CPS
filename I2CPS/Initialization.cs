@@ -13,21 +13,28 @@ namespace RosSharp.RosBridgeClient
         public ArticulationBody Home;
         RosSharp.RosBridgeClient.JointValueSubscriber JointValueSubscriber;
         private List<float> jointPositions;
+        public Camera CameraEnvspace;
         public Camera CameraWorkspace;
-        public Camera CameraTarget;
-        public Camera CameraSideView;
-        
+        public Camera CameraRobotView1;
+        public Camera CameraRobotView2;
+        public Camera CameraWorkspace_support;
+        public Camera Haptic_workspace_View;
+
+        public MeshRenderer ToolEnd;
+        public Vector3 ToolEndPOS;
+
         // Start is called before the first frame update
         protected void Start()
         {
             print("Welcome to I2CPS");
             // Camera Settings
-            CameraWorkspace.enabled = true;
-            CameraTarget.enabled = false;
-            CameraSideView.enabled = false;
+            CameraEnvspace.targetDisplay = 0;
+            ToolEndPOS = ToolEnd.transform.position;
+            // Haptic_workspace_View.enabled = true;
+
 
             // 1. Set Robot into Home position 
-            jointPositions = new List<float> { 0.005f * 3.141592f / 180, -0.017f * 3.141592f / 180, 90.063f * 3.141592f / 180, 0.005f * 3.141592f / 180, 90.013f * 3.141592f / 180, 0.008f * 3.141592f / 180 };
+            jointPositions = new List<float> { -0.000341f, -0.000758f, 1.570947f, 0.000426f, 1.570886f, 0.000134f };
             Home.SetJointPositions(jointPositions);
 
             // 2. Show the Manual
@@ -37,41 +44,36 @@ namespace RosSharp.RosBridgeClient
 
         private void UpdateKeys()
         {
-            //if (Input.GetKeyDown(KeyCode.S))
-            //{
-            //    print("Start Task");
-            //}
 
             if (Input.GetKeyDown(KeyCode.H))
             {
                 print("Send Robot Back to Home POS");
-                jointPositions = new List<float> { 0.005f * 3.141592f / 180, -0.017f * 3.141592f / 180, 90.063f * 3.141592f / 180, 0.005f * 3.141592f / 180, 90.013f * 3.141592f / 180, 0.008f * 3.141592f / 180 };
+                jointPositions = new List<float> { -0.000341f, - 0.000758f, 1.570947f, 0.000426f, 1.570886f, 0.000134f };
                 Home.SetJointPositions(jointPositions);
             }
 
+            // Key to change Camera for workspace
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (CameraWorkspace.enabled)
+                print("Camera Change");
+                if (CameraEnvspace.targetDisplay == 0)
                 {
-                    CameraTarget.enabled = true; 
-                    CameraWorkspace.enabled = false;
-                                     
+                    CameraEnvspace.targetDisplay = 1;
+                    CameraWorkspace.targetDisplay = 0;
+                    CameraRobotView1.targetDisplay = 1;
+                    CameraRobotView2.targetDisplay = 0;
+                    CameraWorkspace_support.targetDisplay = 0;
                 }
-                else if (CameraTarget.enabled)
+                else if (CameraWorkspace.targetDisplay == 0)
                 {
-                    CameraSideView.enabled = true; 
-                    CameraTarget.enabled = false;
-                    
-                }
-                else if (CameraSideView.enabled)
-                {
-                    CameraWorkspace.enabled = true;
-                    CameraSideView.enabled = false;
-
+                    CameraWorkspace.targetDisplay = 1;
+                    CameraEnvspace.targetDisplay = 0;
+                    CameraRobotView1.targetDisplay = 0;
+                    CameraRobotView2.targetDisplay = 1;
+                    CameraWorkspace_support.targetDisplay = 1;
                 }
             }
 
-            // Key to change workspace
             // Key to change velocity
             // Key to not use haptic
 
@@ -84,9 +86,20 @@ namespace RosSharp.RosBridgeClient
 
             // Receive joint values for every 0.1s from ROS Ik Solver
             JointValueSubscriber = (RosSharp.RosBridgeClient.JointValueSubscriber)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.JointValueSubscriber));
-            // Change Joint angles according to
             StartCoroutine(MoveRobot());
-                       
+
+            // When reached the Workspace
+            if (-0.15f < ToolEndPOS.x && ToolEndPOS.x < 0.15f && -0.05f < ToolEndPOS.y && ToolEndPOS.y < 0.16f && 0.25f < ToolEndPOS.z && ToolEndPOS.z < 0.55f)
+            {
+                print("Reached the Workspace");
+
+                CameraEnvspace.targetDisplay = 1;
+                CameraRobotView1.targetDisplay = 1;
+                CameraWorkspace.targetDisplay = 0;
+                CameraRobotView2.targetDisplay = 0;
+                CameraWorkspace_support.targetDisplay = 0;
+            }
+
         }
 
         private IEnumerator MoveRobot()
@@ -106,6 +119,7 @@ namespace RosSharp.RosBridgeClient
 
                 joint1.SetJointPositions(jointPositions);
                 // print($"Joints Value, {jointPositions[0]},{jointPositions[1]},{jointPositions[2]},{jointPositions[3]}");
+                // Current Home position joint values : -0.000341 -0.000758 1.570947 0.000426 1.570886 0.000134
 
                 yield return new WaitForSeconds(0.1f);
             }

@@ -42,7 +42,6 @@ ROS topic Published: '/HapticInfo' in Approximately 25Hz
 
 ```
 
-```
 2. ROS
 ```
 Using Rviz(Doosan Robot ROS Package)

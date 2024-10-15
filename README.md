@@ -1,5 +1,5 @@
-# Unity-I2CPS
-I2CPS 
+# I2CPS
+Haptic - Unity - ROS 
 
 --------------------------
 *Unity Project Features*
@@ -44,6 +44,7 @@ ROS topic Published: '/HapticInfo' in Approximately 25Hz
 
 ```
 2. ROS
+```
 Using Rviz(Doosan Robot ROS Package)
 1. I2CPS_haptic (alias in gedit ~/.bashrc) : launching virtual mode of doosan robot simulation (jsw_haptic.launch)
 2. Python3 (dsr_Haptic_IK.py) : Moving Robot eef with [movel] & Haptic POS
@@ -53,6 +54,11 @@ ROS topic subscribed in Unity with: [JointValueSubscriber] (msg type: Sensor.Joi
 
 *Moveit IK Solver time Problem
 Current vel 1000, acc 5000 / Threshold 1mm, 3mm Testing
+
+```
+```
+Workspace
+ROS topic for ToolEnd: /ToolEnd
 
 ```
 

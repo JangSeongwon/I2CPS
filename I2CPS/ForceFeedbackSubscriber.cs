@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace RosSharp.RosBridgeClient
 {
-    public class ForceFeedbackSubscriber : UnitySubscriber<MessageTypes.RobotiqFtSensor.Ft_sensor>
+    public class ForceFeedbackSubscriber : UnitySubscriber<MessageTypes.robotoq_ft_sensor.ft_sensor>
     {
         public bool isMessageReceived;
-        public float Fx;
-        public float Fy;
-        public float Fz;
-        public float Mx;
-        public float My;
-        public float Mz;
+        public double Fx;
+        public double Fy;
+        public double Fz;
+        public double Mx;
+        public double My;
+        public double Mz;
         public double[] position;
 
         protected override void Start()
@@ -28,15 +28,15 @@ namespace RosSharp.RosBridgeClient
 
         }
 
-        protected override void ReceiveMessage(MessageTypes.RobotiqFtSensor.Ft_sensor message)
+        protected override void ReceiveMessage(MessageTypes.robotoq_ft_sensor.ft_sensor message)
         {
-            print($"msg FT_sensor,{message}");
-            //Fx = (double)message[0];
-            //Fy = (double)message[1];
-            //Fz = (double)message[2];
-            //Mx = (double)message[3];
-            //My = (double)message[4];
-            //Mz = (double)message[5];
+            //print($"msg FT_sensor,{message.Fx}");
+            Fx = (double)message.Fx;
+            Fy = (double)message.Fy;
+            Fz = (double)message.Fz;
+            Mx = (double)message.Mx;
+            My = (double)message.My;
+            Mz = (double)message.Mz;
 
             isMessageReceived = true;
         }

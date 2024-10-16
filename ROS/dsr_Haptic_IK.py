@@ -52,7 +52,7 @@ def callback_sub(msg):
 
     eef = [x, y, z, ox, oy, oz]
     velx=[1000, 1000]
-    accx=[5000, 5000]
+    accx=[2000, 2000]
     # if gx != x and gy != y and gz !=z:
     if (gx - x < 1) and (gy - y < 1) and (gz - z < 1):
         # print('No Moving')

@@ -35,13 +35,13 @@ using RosSharp.RosBridgeClient;
 public class SceneControl : MonoBehaviour
 {
     public HapticPlugin HPlugin = null;
-    private float dbAS;
     public GameObject DeviceInfo;
     public GameObject Device1;
     public GameObject[] StageBorders;
     RosSharp.RosBridgeClient.ForceFeedbackSubscriber ForceFeedbackSubscriber;
-    private List<double> lateral3;
-    private List<double> torque3;
+    public double[] lateral3;
+    public double[] torque3;
+    public string deviceName;
 
     private void UpdateKeys()
     {
@@ -103,7 +103,6 @@ public class SceneControl : MonoBehaviour
     {
         //TextMeshPro TMesh = DeviceInfo.GetComponent<TextMeshPro>();
         //TMesh.text = HPlugin.DeviceIdentifier + "\n" + HPlugin.ModelType + "\n" + HPlugin.SerialNumber + "\n" + HPlugin.MaxForce.ToString("F") + " N";
-        
         Device1.SetActive(true);
         Device1.GetComponent<VirtualHaptic>().ShowGizmo = true;
         Device1.GetComponent<VirtualHaptic>().ShowLabels = true;
@@ -121,11 +120,11 @@ public class SceneControl : MonoBehaviour
 
     private IEnumerator GiveForceFeedback()
     {
-        //lateral3 = (ForceFeedbackSubscriber.Fx, ForceFeedbackSubscriber.Fy, ForceFeedbackSubscriber.Fz);
-        //torque3 = (ForceFeedbackSubscriber.Mx, ForceFeedbackSubscriber.My, ForceFeedbackSubscriber.Mz);
-
-        //HPlugin.setForce(Device1, lateral3, torque3);
-
+        lateral3 = new double[] { ForceFeedbackSubscriber.Fx, ForceFeedbackSubscriber.Fy, ForceFeedbackSubscriber.Fz };
+        torque3 = new double[] { ForceFeedbackSubscriber.Mx, ForceFeedbackSubscriber.My, ForceFeedbackSubscriber.Mz };
+        HapticPlugin.setForce(deviceName, lateral3, torque3);
+        
         yield return new WaitForSeconds(0.01f);
+
     }
 }

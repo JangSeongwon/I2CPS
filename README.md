@@ -60,8 +60,6 @@ ROS topic subscribed in Unity with: [JointValueSubscriber] (msg type: Sensor.Joi
 *Moveit IK Solver time Problem
 Current vel 1000, acc 5000 / Threshold 1mm, 3mm Testing
 
-```
-```
 Workspace
 Distinguisher as ROS topic: /ToolEnd
 Global Coordinate limitation of the workspace: (x, y, z) = (-0.15 ~ 0.15, -0.005 ~ 0.16, 0.25 ~ 0.55) 30cm Cube with Target at center

@@ -6,10 +6,10 @@ namespace RosSharp.RosBridgeClient
 {
     public class ToolEndPublisher : UnityPublisher<MessageTypes.Geometry.PoseStamped>
     {
-        public Transform PublishedTransform;
+        public Transform ToolTransform;
         public string FrameId = "Unity";
 
-        private MessageTypes.Geometry.PoseStamped message;
+        private MessageTypes.Geometry.PoseStamped message_tool;
 
         protected override void Start()
         {
@@ -24,7 +24,7 @@ namespace RosSharp.RosBridgeClient
 
         private void InitializeMessage()
         {
-            message = new MessageTypes.Geometry.PoseStamped
+            message_tool = new MessageTypes.Geometry.PoseStamped
             {
                 header = new MessageTypes.Std.Header()
                 {
@@ -35,23 +35,23 @@ namespace RosSharp.RosBridgeClient
 
         private void UpdateMessage()
         {
-            message.header.Update();
+            message_tool.header.Update();
 
             //Get global position of the ToolEnd 
-            Vector3 position = PublishedTransform.position;
+            Vector3 position = ToolTransform.position;
 
             // Get rotation matrices from the Unity Transform
-            Matrix4x4 localToWorldMatrix = PublishedTransform.localToWorldMatrix;
+            Matrix4x4 localToWorldMatrix = ToolTransform.localToWorldMatrix;
             // Extract rotation from the matrices
             Quaternion rotation = Quaternion.LookRotation(localToWorldMatrix.GetColumn(2), localToWorldMatrix.GetColumn(1));
             // Convert Quaternion to Euler angles
             Vector3 euler = rotation.eulerAngles;
 
             // Set the PoseStamped message
-            GetGeometryPoint(position, message.pose.position);
-            GetGeometryEuler(euler, message.pose.orientation);
+            GetGeometryPoint(position, message_tool.pose.position);
+            GetGeometryEuler(euler, message_tool.pose.orientation);
 
-            Publish(message);
+            Publish(message_tool);
         }
 
         private static void GetGeometryPoint(Vector3 position, MessageTypes.Geometry.Point geometryPoint)
@@ -59,7 +59,7 @@ namespace RosSharp.RosBridgeClient
             geometryPoint.x = position.x;
             geometryPoint.y = position.y;
             geometryPoint.z = position.z;
-            print($"See ToolEnd Position, {geometryPoint.x}, {geometryPoint.y}, {geometryPoint.z}");
+            //print($"See ToolEnd Position, {geometryPoint.x}, {geometryPoint.y}, {geometryPoint.z}");
 
         }
 

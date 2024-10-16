@@ -12,7 +12,6 @@ namespace RosSharp.RosBridgeClient
         public double Mx;
         public double My;
         public double Mz;
-        public double[] position;
 
         protected override void Start()
         {

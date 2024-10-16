@@ -11,6 +11,12 @@ Use Assets: https://assetstore.unity.com/packages/tools/integration/haptics-dire
 2. Collider : [HapticCollider]
 3. Haptic Initializer : [SceneControl]
 ```
+```
+2. 6F/T Sensor
+ROS topic: /robotiq_ft_sensor
+Subscriber: ForceFeedbackSubscriber
+Feedback to Haptic: [HapticPlugin.setForce(deviceName, lateral3, torque3);]
+```
 
 2. Doosan Robot in Unity
 ```
@@ -24,11 +30,6 @@ Moved with Joint inputs: [SetJointPositions in Initialization]
 
 3. Other used Assets
  - Grid Material 'https://assetstore.unity.com/packages/2d/textures-materials/gridbox-prototype-materials-129127?srsltid=AfmBOoowjbEvLqTxcaygvjJtN8hxCxJowGYixQxBeUa_0jl3p8vigAHM'
-
-4. 6F/T Sensor
-ROS topic: /robotiq_ft_sensor
-Subscriber: ForceFeedbackSubscriber
-Feedback to Haptic: [HapticPlugin.setForce(deviceName, lateral3, torque3);]
 
 ```
 

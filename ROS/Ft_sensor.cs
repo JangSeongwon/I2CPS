@@ -1,5 +1,5 @@
 
-namespace RosSharp.RosBridgeClient.MessageTypes.robotoq_ft_sensor
+namespace RosSharp.RosBridgeClient.MessageTypes.robotiq_ft_sensor
 {
     public class ft_sensor : Message
     {

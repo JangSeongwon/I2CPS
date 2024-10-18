@@ -1,4 +1,6 @@
 using UnityEngine;
+using System;
+using System.Threading;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -8,19 +10,37 @@ namespace RosSharp.RosBridgeClient
         public string FrameId = "Unity";
 
         private MessageTypes.Geometry.PoseStamped message;
+        public int Pose_mode;
 
         protected override void Start()
         {
             base.Start();
             InitializeMessage();
+            Pose_mode = 0;
         }
 
         private void FixedUpdate()
         {
-            UpdateMessage();
+            UpdateKeys();
+            if (Pose_mode == 0)
+                UpdateMessage();
+            else
+                return;
         }
 
-        private void InitializeMessage()
+        private void UpdateKeys()
+        {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                print("Fix the Robot's Position");
+                if (Pose_mode == 0)
+                    Pose_mode = 1;
+                else
+                    Pose_mode = 0;
+            }
+        }
+
+            private void InitializeMessage()
         {
             message = new MessageTypes.Geometry.PoseStamped
             {
@@ -54,21 +74,23 @@ namespace RosSharp.RosBridgeClient
 
         private static void GetGeometryPoint(Vector3 position, MessageTypes.Geometry.Point geometryPoint)
         {
-            geometryPoint.x = position.x;
-            geometryPoint.y = position.y;
+            geometryPoint.x = position.x - 3;
+            geometryPoint.y = position.y + 0.5;
             geometryPoint.z = position.z;
         }
 
         private static void GetGeometryEuler(Vector3 euler, MessageTypes.Geometry.Quaternion geometryQuaternion)
         {
             // Convert Euler angles to Quaternion
-            //Quaternion quaternion = Quaternion.Euler(euler);
+            // Quaternion quaternion = Quaternion.Euler(euler);
 
             // Set the Quaternion in the message
             geometryQuaternion.x = euler.x;
             geometryQuaternion.y = euler.y;
             geometryQuaternion.z = euler.z;
             geometryQuaternion.w = 0.0f;
+            
         }
+
     }
 }

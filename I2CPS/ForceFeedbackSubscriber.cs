@@ -27,7 +27,7 @@ namespace RosSharp.RosBridgeClient
 
         }
 
-        protected override void ReceiveMessage(MessageTypes.robitoq_ft_sensor.ft_sensor message)
+        protected override void ReceiveMessage(MessageTypes.robotiq_ft_sensor.ft_sensor message)
         {
             //print($"msg FT_sensor,{message.Fx}");
             Fx = (double)message.Fx;

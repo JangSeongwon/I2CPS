@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace RosSharp.RosBridgeClient
 {
-    public class ForceFeedbackSubscriber : UnitySubscriber<MessageTypes.robotoq_ft_sensor.ft_sensor>
+    public class ForceFeedbackSubscriber : UnitySubscriber<MessageTypes.robotiq_ft_sensor.ft_sensor>
     {
         public bool isMessageReceived;
         public double Fx;
@@ -27,7 +27,7 @@ namespace RosSharp.RosBridgeClient
 
         }
 
-        protected override void ReceiveMessage(MessageTypes.robotoq_ft_sensor.ft_sensor message)
+        protected override void ReceiveMessage(MessageTypes.robitoq_ft_sensor.ft_sensor message)
         {
             //print($"msg FT_sensor,{message.Fx}");
             Fx = (double)message.Fx;

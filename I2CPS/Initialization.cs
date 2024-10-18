@@ -32,7 +32,6 @@ namespace RosSharp.RosBridgeClient
             ToolEndPOS = ToolEnd.transform.position;
             // Haptic_workspace_View.enabled = true;
 
-
             // 1. Set Robot into Home position 
             jointPositions = new List<float> { -0.000341f, -0.000758f, 1.570947f, 0.000426f, 1.570886f, 0.000134f };
             Home.SetJointPositions(jointPositions);
@@ -51,6 +50,7 @@ namespace RosSharp.RosBridgeClient
                 jointPositions = new List<float> { -0.000341f, - 0.000758f, 1.570947f, 0.000426f, 1.570886f, 0.000134f };
                 Home.SetJointPositions(jointPositions);
             }
+            // Instead Deactivate /joint_states
 
             // Key to change Camera for workspace
             if (Input.GetKeyDown(KeyCode.Space))
@@ -59,22 +59,21 @@ namespace RosSharp.RosBridgeClient
                 if (CameraEnvspace.targetDisplay == 0)
                 {
                     CameraEnvspace.targetDisplay = 1;
-                    CameraWorkspace.targetDisplay = 0;
                     CameraRobotView1.targetDisplay = 1;
+                    CameraWorkspace.targetDisplay = 0;
                     CameraRobotView2.targetDisplay = 0;
                     CameraWorkspace_support.targetDisplay = 0;
                 }
                 else if (CameraWorkspace.targetDisplay == 0)
                 {
                     CameraWorkspace.targetDisplay = 1;
+                    CameraRobotView2.targetDisplay = 1;
                     CameraEnvspace.targetDisplay = 0;
                     CameraRobotView1.targetDisplay = 0;
-                    CameraRobotView2.targetDisplay = 1;
                     CameraWorkspace_support.targetDisplay = 1;
                 }
             }
 
-            // Key to change velocity
             // Key to not use haptic
 
         }
@@ -89,10 +88,10 @@ namespace RosSharp.RosBridgeClient
             StartCoroutine(MoveRobot());
 
             // When reached the Workspace
+            //print($"ToolEnd POS, {ToolEndPOS.x}, {ToolEndPOS.y}, {ToolEndPOS.z}");
             if (-0.15f < ToolEndPOS.x && ToolEndPOS.x < 0.15f && -0.05f < ToolEndPOS.y && ToolEndPOS.y < 0.16f && 0.25f < ToolEndPOS.z && ToolEndPOS.z < 0.55f)
             {
                 print("Reached the Workspace");
-
                 CameraEnvspace.targetDisplay = 1;
                 CameraRobotView1.targetDisplay = 1;
                 CameraWorkspace.targetDisplay = 0;

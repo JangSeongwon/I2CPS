@@ -41,6 +41,8 @@ public class SceneControl : MonoBehaviour
     RosSharp.RosBridgeClient.ForceFeedbackSubscriber ForceFeedbackSubscriber;
     public double[] lateral3;
     public double[] torque3;
+    public double[] usable6;
+    public double[] max6;
     public string deviceName;
 
     private void UpdateKeys()
@@ -106,6 +108,9 @@ public class SceneControl : MonoBehaviour
         Device1.SetActive(true);
         Device1.GetComponent<VirtualHaptic>().ShowGizmo = true;
         Device1.GetComponent<VirtualHaptic>().ShowLabels = true;
+        
+        
+
             
     }
 
@@ -116,6 +121,9 @@ public class SceneControl : MonoBehaviour
         UpdateKeys();
         ForceFeedbackSubscriber = (RosSharp.RosBridgeClient.ForceFeedbackSubscriber)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.ForceFeedbackSubscriber));
         StartCoroutine(GiveForceFeedback());
+        usable6 = new double[] {-3.1, 0.4, -0.1, -2.9, 0.6, 0.1 };
+        max6 = new double[] { -3.2, 0.3, -0.2, -2.8, 0.7, 0.2 };
+        HapticPlugin.getWorkspaceArea(deviceName, usable6, max6);
     }
 
     private IEnumerator GiveForceFeedback()

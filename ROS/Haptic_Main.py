@@ -19,7 +19,7 @@ DR_init.__dsr__model = ROBOT_MODEL
 from DSR_ROBOT import *
 import time
 
-def callback_sub(msg):
+def callback_haptic(msg):
     start = time.time()
     POS = msg.pose.position
     ORI = msg.pose.orientation
@@ -53,8 +53,8 @@ def callback_sub(msg):
     # oz = getfromtuple[5]
 
     eef = [x, y, z, ox, oy, oz]
-    velx=[1000, 1000]
-    accx=[2000, 2000]
+    velx=[500, 500]
+    accx=[1000, 1000]
     # if gx != x and gy != y and gz !=z:
     if (abs(gx - x) < 1) and (abs(gy - y) < 1) and (abs(gz - z) < 1):
         # print('No Moving')
@@ -70,20 +70,20 @@ def callback_sub(msg):
 def callback_ori(msg):
     start = time.time()
     ORI = msg.orientation
-    # robot_home_ori = [36.052101135253906, 179.90725708007812, 36.2788200378418] or [169.03416442871094, 179.75306701660156, 169.2607879638672]
+    robot_home_ori = [169.03416442871094, 179.75306701660156, 169.2607879638672]
     robot_pos_fixed = get_current_posx()
     # print('Current Robot POS = ', robot_pos_fixed)
 
     Haptic_Rx = ORI.x
     Haptic_Ry = ORI.y
     Haptic_Rz = ORI.z
-    Rx = round(robot_pos_fixed[0][3] + Haptic_Rx*0.5, 1)
-    Ry = round(robot_pos_fixed[0][4] + Haptic_Ry*0.5, 1)
-    Rz = round(robot_pos_fixed[0][5] + Haptic_Rz*0.5, 1)
+    Rx = round(robot_home_ori[0] + Haptic_Rx*0.5, 1)
+    Ry = round(robot_home_ori[0] + Haptic_Ry*0.5, 1)
+    Rz = round(robot_home_ori[0] + Haptic_Rz*0.5, 1)
     # print('Haptic Orientaion Input', Rx, Ry, Rz)
-    Rx_c = robot_pos_fixed[3] 
-    Ry_c = robot_pos_fixed[4]
-    Rz_c = robot_pos_fixed[5]
+    Rx_c = robot_pos_fixed[0][3] 
+    Ry_c = robot_pos_fixed[0][4]
+    Rz_c = robot_pos_fixed[0][5]
 
     getfromtuple = robot_pos_fixed[0]
     Fixed_x = round(getfromtuple[0], 1)
@@ -93,12 +93,14 @@ def callback_ori(msg):
     eef = [Fixed_x, Fixed_y, Fixed_z, Rx, Ry, Rz]
     velx=[500, 500]
     accx=[1000, 1000]
-    if (abs(Rx_c - Rx) < 1) and (abs(Ry_c - Ry) < 1) and (abs(Rz_c - Rz) < 1):
+    if (abs(Rx_c - Rx) < 0.5) and (abs(Ry_c - Ry) < 0.5) and (abs(Rz_c - Rz) < 0.5):
+        end1 = time.time()
+        # print(end1-start)
         return
     else:
         amovel(eef, velx, accx)
         end = time.time()
-        print('Time IK for ORI', end-start)
+        # print('Time IK for ORI', end-start)
 
     return
  
@@ -107,7 +109,7 @@ if __name__ == "__main__":
     rospy.init_node('Haptic')
 
     while not rospy.is_shutdown():
-        rospy.Subscriber("/HapticInfo", PoseStamped, callback_sub)
+        rospy.Subscriber("/HapticInfo", PoseStamped, callback_haptic)
         rospy.Subscriber("/HapticOri", Pose, callback_ori)
         rospy.spin()
 

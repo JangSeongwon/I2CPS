@@ -33,7 +33,7 @@ def callback_sub(msg):
     # ow = ORI.w 
     # print('See Haptic info',Hapticx, Hapticy, Hapticz)
     
-    robot_pos = [367.0652, -32.8631, 319.2571, 91.1484, 179.9457, 91.4019]
+    robot_pos = [367.5965576171875, 33.294639587402344, 441.7723693847656, 36.052101135253906, 179.90725708007812, 36.2788200378418]
     # ROS Coordinate (Hapticx = y, Hapticy = z, Hapticz = x)
     x = round(robot_pos[0] + Hapticz*2000, 1)
     y = round(robot_pos[1] - Hapticx*2000, 1)
@@ -56,8 +56,8 @@ def callback_sub(msg):
     velx=[1000, 1000]
     accx=[2000, 2000]
     # if gx != x and gy != y and gz !=z:
-    if (gx - x < 1) and (gy - y < 1) and (gz - z < 1):
-        print('No Moving')
+    if (abs(gx - x) < 1) and (abs(gy - y) < 1) and (abs(gz - z) < 1):
+        # print('No Moving')
         end1 = time.time()
         # print( end1-start)
         return
@@ -70,26 +70,35 @@ def callback_sub(msg):
 def callback_ori(msg):
     start = time.time()
     ORI = msg.orientation
+    # robot_home_ori = [36.052101135253906, 179.90725708007812, 36.2788200378418] or [169.03416442871094, 179.75306701660156, 169.2607879638672]
+    robot_pos_fixed = get_current_posx()
+    # print('Current Robot POS = ', robot_pos_fixed)
+
     Haptic_Rx = ORI.x
     Haptic_Ry = ORI.y
     Haptic_Rz = ORI.z
-    Rx = round(Haptic_Rx, 1)
-    Ry = round(Haptic_Ry, 1)
-    Rz = round(Haptic_Rz, 1)
+    Rx = round(robot_pos_fixed[0][3] + Haptic_Rx*0.5, 1)
+    Ry = round(robot_pos_fixed[0][4] + Haptic_Ry*0.5, 1)
+    Rz = round(robot_pos_fixed[0][5] + Haptic_Rz*0.5, 1)
+    # print('Haptic Orientaion Input', Rx, Ry, Rz)
+    Rx_c = robot_pos_fixed[3] 
+    Ry_c = robot_pos_fixed[4]
+    Rz_c = robot_pos_fixed[5]
 
-    robot_pos_fixed = get_current_posx()
-    # print('Current Robot POS = ', robot_pos)
     getfromtuple = robot_pos_fixed[0]
     Fixed_x = round(getfromtuple[0], 1)
     Fixed_y = round(getfromtuple[1], 1)
     Fixed_z = round(getfromtuple[2], 1)
 
     eef = [Fixed_x, Fixed_y, Fixed_z, Rx, Ry, Rz]
-    velx=[100, 100]
-    accx=[200, 200]
-    amovel(eef, velx, accx)
-    end = time.time()
-    print('Time IK for ORI', end-start)
+    velx=[500, 500]
+    accx=[1000, 1000]
+    if (abs(Rx_c - Rx) < 1) and (abs(Ry_c - Ry) < 1) and (abs(Rz_c - Rz) < 1):
+        return
+    else:
+        amovel(eef, velx, accx)
+        end = time.time()
+        print('Time IK for ORI', end-start)
 
     return
  
@@ -108,8 +117,8 @@ if __name__ == "__main__":
         # set_velx(20,20)  # set global task speed: 30(mm/sec), 20(deg/sec)
         # set_accx(60,40)  # set global task accel: 60(mm/sec2), 40(deg/sec2)
 
-        robot_pos = get_current_posx()
-        print('Current Robot POS = ', robot_pos)
+        # robot_pos = get_current_posx()
+        # print('Current Robot POS = ', robot_pos)
  
         
 

@@ -71,6 +71,9 @@ Global Coordinate limitation of the workspace: (x, y, z) = (-0.15 ~ 0.15, -0.005
 
 Data Communication Speed settings:
 https://answers.ros.org/question/332192/difference-between-rospyspin-and-rospysleep/
+
+Current Error: callback OnLogAlarm. Level.2 1209에러: 입력된 목표 속도 (TASK)가 사용자 LIMIT을 벗어날을 때 나는 에러
+
 ```
 
 --------------------------

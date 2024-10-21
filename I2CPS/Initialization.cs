@@ -20,7 +20,7 @@ namespace RosSharp.RosBridgeClient
         public Camera CameraWorkspace_support;
         public Camera Haptic_workspace_View;
 
-        public MeshRenderer ToolEnd;
+        public Transform ToolEnd;
         public Vector3 ToolEndPOS;
 
         // Start is called before the first frame update
@@ -29,7 +29,7 @@ namespace RosSharp.RosBridgeClient
             print("Welcome to I2CPS");
             // Camera Settings
             CameraEnvspace.targetDisplay = 0;
-            ToolEndPOS = ToolEnd.transform.position;
+            ToolEndPOS = ToolEnd.position;
             // Haptic_workspace_View.enabled = true;
 
             // 1. Set Robot into Home position 
@@ -87,7 +87,9 @@ namespace RosSharp.RosBridgeClient
             JointValueSubscriber = (RosSharp.RosBridgeClient.JointValueSubscriber)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.JointValueSubscriber));
             StartCoroutine(MoveRobot());
 
+
             // When reached the Workspace
+            ToolEndPOS = ToolEnd.position;
             //print($"ToolEnd POS, {ToolEndPOS.x}, {ToolEndPOS.y}, {ToolEndPOS.z}");
             if (-0.15f < ToolEndPOS.x && ToolEndPOS.x < 0.15f && -0.05f < ToolEndPOS.y && ToolEndPOS.y < 0.16f && 0.25f < ToolEndPOS.z && ToolEndPOS.z < 0.55f)
             {
@@ -120,7 +122,7 @@ namespace RosSharp.RosBridgeClient
                 // print($"Joints Value, {jointPositions[0]},{jointPositions[1]},{jointPositions[2]},{jointPositions[3]}");
                 // Current Home position joint values : -0.000341 -0.000758 1.570947 0.000426 1.570886 0.000134
 
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(0.01f);
             }
         }
 

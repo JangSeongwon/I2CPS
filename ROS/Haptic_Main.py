@@ -70,7 +70,7 @@ def callback_haptic(msg):
 def callback_ori(msg):
     start = time.time()
     ORI = msg.orientation
-    robot_home_ori = [169.03416442871094, 179.75306701660156, 169.2607879638672]
+    robot_home_ori = [169, 179.8, 169.3]
     robot_pos_fixed = get_current_posx()
     # print('Current Robot POS = ', robot_pos_fixed)
 
@@ -99,6 +99,9 @@ def callback_ori(msg):
         return
     else:
         amovel(eef, velx, accx)
+        robot_pos_check = get_current_posx()
+        print('Haptic Orientaion Input', 'x : 170 ', Rx, 'y : 180 ', Ry, 'z : 170 ', Rz)
+        print('Current Robot ORI = ', robot_pos_check[0][3], robot_pos_check[0][4], robot_pos_check[0][5])
         end = time.time()
         # print('Time IK for ORI', end-start)
 

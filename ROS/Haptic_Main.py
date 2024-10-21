@@ -57,15 +57,14 @@ def callback_haptic(msg):
     accx=[1000, 1000]
     # if gx != x and gy != y and gz !=z:
     if (abs(gx - x) < 1) and (abs(gy - y) < 1) and (abs(gz - z) < 1):
-        # print('No Moving')
         end1 = time.time()
-        # print( end1-start)
+        # print(end1-start)
         return
     else:
         # print('gx gy gz', x, gx, y, gy, z, gz)
         amovel(eef, velx, accx)
         end2 = time.time()
-        print('Time IK', end2-start)
+        # print(end2-start)
 
 def callback_ori(msg):
     start = time.time()
@@ -100,28 +99,31 @@ def callback_ori(msg):
     else:
         amovel(eef, velx, accx)
         robot_pos_check = get_current_posx()
-        print('Haptic Orientaion Input', 'x : 170 ', Rx, 'y : 180 ', Ry, 'z : 170 ', Rz)
-        print('Current Robot ORI = ', robot_pos_check[0][3], robot_pos_check[0][4], robot_pos_check[0][5])
+        # print('Haptic Orientaion Input', 'x : 170 ', Rx, 'y : 180 ', Ry, 'z : 170 ', Rz)
+        # print('Current Robot ORI = ', robot_pos_check[0][3], robot_pos_check[0][4], robot_pos_check[0][5])
         end = time.time()
-        # print('Time IK for ORI', end-start)
+        # print(end-start)
 
     return
  
 
 if __name__ == "__main__":
     rospy.init_node('Haptic')
+    rate = rospy.Rate(20)
 
     while not rospy.is_shutdown():
         rospy.Subscriber("/HapticInfo", PoseStamped, callback_haptic)
         rospy.Subscriber("/HapticOri", Pose, callback_ori)
-        rospy.spin()
+        
+        """ROS Loop Settings"""
+        # rospy.spin()
+        rate.sleep()    
 
-        # rate = rospy.Rate(2)
-        # rate.sleep()    
-        # print("Running")
+        """Initial Doosan robot vel, acc Settings"""
         # set_velx(20,20)  # set global task speed: 30(mm/sec), 20(deg/sec)
         # set_accx(60,40)  # set global task accel: 60(mm/sec2), 40(deg/sec2)
 
+        """Robot posx check"""
         # robot_pos = get_current_posx()
         # print('Current Robot POS = ', robot_pos)
  

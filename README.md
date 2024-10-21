@@ -48,7 +48,8 @@ ROS#: https://github.com/siemens/ros-sharp
 ```
 From Haptic
 Haptic information(Transform) sending: Use [EndEffectorPublisher.cs] from RosSharp
-ROS topic Published: '/HapticInfo' in Approximately 25Hz
+ROS topic Published (Pose): '/HapticInfo' in 50Hz
+ROS topic Published (Differential Orientation): '/HapticOri' in 50Hz
 
 ```
 
@@ -56,7 +57,7 @@ ROS topic Published: '/HapticInfo' in Approximately 25Hz
 ```
 Using Rviz(Doosan Robot ROS Package)
 1. I2CPS_haptic (alias in gedit ~/.bashrc) : launching virtual mode of doosan robot simulation (jsw_haptic.launch)
-2. Python3 (dsr_Haptic_IK.py) : Moving Robot eef with [movel] & Haptic POS
+2. Python3 (Haptic_Main.py) : Moving Robot eef with [movel] & Haptic POS
 
 ROS topic to Unity: [JointStatePublisher] '/dsr01m1509/joint_states'
 ROS topic subscribed in Unity with: [JointValueSubscriber] (msg type: Sensor.JointState)

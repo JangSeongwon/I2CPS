@@ -33,7 +33,7 @@ namespace RosSharp.RosBridgeClient
             // Haptic_workspace_View.enabled = true;
 
             // 1. Set Robot into Home position 
-            jointPositions = new List<float> { -0.000341f, -0.000758f, 1.570947f, 0.000426f, 1.570886f, 0.000134f };
+            jointPositions = new List<float> {0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f};
             Home.SetJointPositions(jointPositions);
 
             // 2. Show the Manual
@@ -47,7 +47,7 @@ namespace RosSharp.RosBridgeClient
             if (Input.GetKeyDown(KeyCode.H))
             {
                 print("Send Robot Back to Home POS");
-                jointPositions = new List<float> { -0.000341f, - 0.000758f, 1.570947f, 0.000426f, 1.570886f, 0.000134f };
+                jointPositions = new List<float> {0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f};
                 Home.SetJointPositions(jointPositions);
             }
             // Instead Deactivate /joint_states

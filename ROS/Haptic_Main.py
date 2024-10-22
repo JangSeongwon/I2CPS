@@ -27,36 +27,32 @@ def callback_haptic(msg):
     Hapticx = POS.x
     Hapticy = POS.y
     Hapticz = POS.z
-    # ox = ORI.x
-    # oy = ORI.y
-    # oz = ORI.z
-    # ow = ORI.w 
+    Haptic_Rx = ORI.x
+    Haptic_Ry = ORI.y
+    Haptic_Rz = ORI.z
     # print('See Haptic info',Hapticx, Hapticy, Hapticz)
     
-    robot_pos = [367.5965576171875, 33.294639587402344, 441.7723693847656, 36.052101135253906, 179.90725708007812, 36.2788200378418]
-    # ROS Coordinate (Hapticx = y, Hapticy = z, Hapticz = x)
+    robot_pos = [368.3, 33.3, 438.6, 175.5, 179.6, 175.7]
+    '''ROS Coordinate (Hapticx = y, Hapticy = z, Hapticz = x)'''
     x = round(robot_pos[0] + Hapticz*2000, 1)
     y = round(robot_pos[1] - Hapticx*2000, 1)
     z = round(robot_pos[2] + Hapticy*2000, 1)
 
     robot_pos_c = get_current_posx()
     getfromtuple = robot_pos_c[0]
-    gx = round(getfromtuple[0], 1)
-    gy = round(getfromtuple[1], 1)
-    gz = round(getfromtuple[2], 1)
+    current_x = round(getfromtuple[0], 1)
+    current_y = round(getfromtuple[1], 1)
+    current_z = round(getfromtuple[2], 1)
 
-    ox = robot_pos[3] 
-    oy = robot_pos[4]
-    oz = robot_pos[5]
-    # ox = getfromtuple[3] 
-    # oy = getfromtuple[4]
-    # oz = getfromtuple[5]
+    current_Rx = round(getfromtuple[3], 1)
+    current_Ry = round(getfromtuple[4], 1)
+    current_Rz = round(getfromtuple[5], 1)
 
-    eef = [x, y, z, ox, oy, oz]
-    velx=[500, 500]
-    accx=[1000, 1000]
+    eef = [x, y, z, current_Rx, current_Ry, current_Rz]
+    velx=[500, 120]
+    accx=[1000, 240]
     # if gx != x and gy != y and gz !=z:
-    if (abs(gx - x) < 1) and (abs(gy - y) < 1) and (abs(gz - z) < 1):
+    if (abs(current_x - x) < 1) and (abs(current_y - y) < 1) and (abs(current_z - z) < 1):
         end1 = time.time()
         # print(end1-start)
         return
@@ -64,7 +60,7 @@ def callback_haptic(msg):
         # print('gx gy gz', x, gx, y, gy, z, gz)
         amovel(eef, velx, accx)
         end2 = time.time()
-        # print(end2-start)
+        print(end2-start)
 
 def callback_ori(msg):
     start = time.time()
@@ -75,14 +71,16 @@ def callback_ori(msg):
 
     Haptic_Rx = ORI.x
     Haptic_Ry = ORI.y
-    Haptic_Rz = ORI.z
-    Rx = round(robot_home_ori[0] + Haptic_Rx*0.5, 1)
-    Ry = round(robot_home_ori[0] + Haptic_Ry*0.5, 1)
-    Rz = round(robot_home_ori[0] + Haptic_Rz*0.5, 1)
-    # print('Haptic Orientaion Input', Rx, Ry, Rz)
+    # Haptic_Rz = ORI.z
+    Rx = round(robot_home_ori[0] + Haptic_Rx, 1)
+    Ry = round(robot_home_ori[0] + Haptic_Ry, 1)
+    Rz = round(robot_home_ori[0], 1)
+
     Rx_c = robot_pos_fixed[0][3] 
     Ry_c = robot_pos_fixed[0][4]
     Rz_c = robot_pos_fixed[0][5]
+
+    # print('Haptic Orientaion Input',Rx_c, Rx, Ry_c, Ry, Rz_c, Rz)
 
     getfromtuple = robot_pos_fixed[0]
     Fixed_x = round(getfromtuple[0], 1)
@@ -90,8 +88,9 @@ def callback_ori(msg):
     Fixed_z = round(getfromtuple[2], 1)
 
     eef = [Fixed_x, Fixed_y, Fixed_z, Rx, Ry, Rz]
-    velx=[500, 500]
-    accx=[1000, 1000]
+    velx=[20, 120]
+    accx=[40, 240]
+    
     if (abs(Rx_c - Rx) < 0.5) and (abs(Ry_c - Ry) < 0.5) and (abs(Rz_c - Rz) < 0.5):
         end1 = time.time()
         # print(end1-start)
@@ -102,7 +101,7 @@ def callback_ori(msg):
         # print('Haptic Orientaion Input', 'x : 170 ', Rx, 'y : 180 ', Ry, 'z : 170 ', Rz)
         # print('Current Robot ORI = ', robot_pos_check[0][3], robot_pos_check[0][4], robot_pos_check[0][5])
         end = time.time()
-        # print(end-start)
+        print(end-start)
 
     return
  
@@ -112,20 +111,39 @@ if __name__ == "__main__":
     rate = rospy.Rate(20)
 
     while not rospy.is_shutdown():
-        rospy.Subscriber("/HapticInfo", PoseStamped, callback_haptic)
-        rospy.Subscriber("/HapticOri", Pose, callback_ori)
-        
-        """ROS Loop Settings"""
+        # rospy.Subscriber("/HapticInfo", PoseStamped, callback_haptic)
+        # rospy.Subscriber(name = "/HapticOri", data_class = Pose, callback = callback_ori)
         # rospy.spin()
-        rate.sleep()    
+        
+        #rate.sleep()    
 
         """Initial Doosan robot vel, acc Settings"""
         # set_velx(20,20)  # set global task speed: 30(mm/sec), 20(deg/sec)
         # set_accx(60,40)  # set global task accel: 60(mm/sec2), 40(deg/sec2)
 
         """Robot posx check"""
-        # robot_pos = get_current_posx()
-        # print('Current Robot POS = ', robot_pos)
+        robot_pos = get_current_posx()
+        print('Current Robot POS = Rx : ', robot_pos[0][3], 'Ry : ', robot_pos[0][4], 'Rz : ', robot_pos[0][5])
+
+        """ 
+        ROS 상 각도 값
+        Front 우측 45도 회전 : 85 -140 85
+        Front 우측 90도 회전시 각도 : 90 -90 90
+        다시 정면 : 120 180 120
+        Front 왼쪽 45도 회전 : 92 122 94
+        Front 왼쪽 회전시 각도 : 90 90 90
+        다시 정면 : 105 180 (=-180) 105
+
+        뒤로 90도 누웠을 때 : 179 -88 -175
+        뒤로 135도 누웠을 때 : 175 -50 -175
+        다시 정면 : 100 175 100
+        앞으로 45도 누움 : 175 135 175
+        앞으로 90도 누움 : 178 108 175
+
+        뒤로 45도 눕고 앞으로 좀 갔을 때 : 179 -138 179 (앞, 뒤 움직임 문제 없음)
+        앞으로 좀 누웠을 때 : 179 138 -179
+
+        """
  
         
 

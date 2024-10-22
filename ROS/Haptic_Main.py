@@ -128,7 +128,6 @@ if __name__ == "__main__":
         # set_accx(60,40)  # set global task accel: 60(mm/sec2), 40(deg/sec2)
 
         """Robot posx check with respect to Haptic Coordinates"""
-        
         # robot_pos, sol = get_current_posx(Haptic_coord)
         # print('Current Robot POS = xyz : ', robot_pos,'Rx : ', robot_pos[3], 'Ry : ', robot_pos[4], 'Rz : ', robot_pos[5])
 

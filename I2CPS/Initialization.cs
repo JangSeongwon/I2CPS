@@ -33,7 +33,7 @@ namespace RosSharp.RosBridgeClient
             // Haptic_workspace_View.enabled = true;
 
             // 1. Set Robot into Home position 
-            jointPositions = new List<float> {0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f};
+            jointPositions = new List<float> { 0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f };
             Home.SetJointPositions(jointPositions);
 
             // 2. Show the Manual
@@ -50,7 +50,6 @@ namespace RosSharp.RosBridgeClient
                 jointPositions = new List<float> {0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f};
                 Home.SetJointPositions(jointPositions);
             }
-            // Instead Deactivate /joint_states
 
             // Key to change Camera for workspace
             if (Input.GetKeyDown(KeyCode.Space))
@@ -62,7 +61,7 @@ namespace RosSharp.RosBridgeClient
                     CameraRobotView1.targetDisplay = 1;
                     CameraWorkspace.targetDisplay = 0;
                     CameraRobotView2.targetDisplay = 0;
-                    CameraWorkspace_support.targetDisplay = 0;
+                    Haptic_workspace_View.targetDisplay = 0;
                 }
                 else if (CameraWorkspace.targetDisplay == 0)
                 {
@@ -70,7 +69,7 @@ namespace RosSharp.RosBridgeClient
                     CameraRobotView2.targetDisplay = 1;
                     CameraEnvspace.targetDisplay = 0;
                     CameraRobotView1.targetDisplay = 0;
-                    CameraWorkspace_support.targetDisplay = 1;
+                    Haptic_workspace_View.targetDisplay = 1;
                 }
             }
 

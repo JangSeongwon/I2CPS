@@ -32,11 +32,13 @@ def callback_haptic(msg):
     Haptic_Rz = ORI.z
     # print('See Haptic info',Hapticx, Hapticy, Hapticz)
     
-    robot_pos = [368.3, 33.3, 438.6, 175.5, 179.6, 175.7]
-    '''ROS Coordinate (Hapticx = y, Hapticy = z, Hapticz = x)'''
-    x = round(robot_pos[0] + Hapticz*2000, 1)
-    y = round(robot_pos[1] - Hapticx*2000, 1)
-    z = round(robot_pos[2] + Hapticy*2000, 1)
+    '''Doosan Robot Home Position'''
+    robot_pos = [-33.233, 436.660, -368.990, 89.976, -89.282, 0.227]
+    
+    '''ROS Coordinate (Hapticx = ROSx, Hapticy = ROSy, Hapticz = -ROSz)'''
+    x = round(robot_pos[0] + Hapticx*2000, 1)
+    y = round(robot_pos[1] + Hapticy*2000, 1)
+    z = round(robot_pos[2] - Hapticz*2000, 1)
 
     robot_pos_c = get_current_posx()
     getfromtuple = robot_pos_c[0]
@@ -51,13 +53,13 @@ def callback_haptic(msg):
     eef = [x, y, z, current_Rx, current_Ry, current_Rz]
     velx=[500, 120]
     accx=[1000, 240]
-    # if gx != x and gy != y and gz !=z:
+
+    """오차 범위"""
     if (abs(current_x - x) < 1) and (abs(current_y - y) < 1) and (abs(current_z - z) < 1):
         end1 = time.time()
         # print(end1-start)
         return
     else:
-        # print('gx gy gz', x, gx, y, gy, z, gz)
         amovel(eef, velx, accx)
         end2 = time.time()
         print(end2-start)
@@ -65,7 +67,7 @@ def callback_haptic(msg):
 def callback_ori(msg):
     start = time.time()
     ORI = msg.orientation
-    robot_home_ori = [169, 179.8, 169.3]
+    robot_home_ori = [89.976, -89.282, 0.227]
     robot_pos_fixed = get_current_posx()
     # print('Current Robot POS = ', robot_pos_fixed)
 
@@ -80,7 +82,7 @@ def callback_ori(msg):
     Ry_c = robot_pos_fixed[0][4]
     Rz_c = robot_pos_fixed[0][5]
 
-    # print('Haptic Orientaion Input',Rx_c, Rx, Ry_c, Ry, Rz_c, Rz)
+    # print('Haptic Orientaion Input : ', Rx, Ry, Rz)
 
     getfromtuple = robot_pos_fixed[0]
     Fixed_x = round(getfromtuple[0], 1)
@@ -96,7 +98,7 @@ def callback_ori(msg):
         # print(end1-start)
         return
     else:
-        amovel(eef, velx, accx)
+        amovel(eef, velx, accx, ref = Haptic_coord)
         robot_pos_check = get_current_posx()
         # print('Haptic Orientaion Input', 'x : 170 ', Rx, 'y : 180 ', Ry, 'z : 170 ', Rz)
         # print('Current Robot ORI = ', robot_pos_check[0][3], robot_pos_check[0][4], robot_pos_check[0][5])
@@ -109,42 +111,44 @@ def callback_ori(msg):
 if __name__ == "__main__":
     rospy.init_node('Haptic')
     rate = rospy.Rate(20)
+    Vector_x = [0, -1, 0]
+    Vector_y = [0, 0, 1]
+    Origin = posx(0,0,0,0,0,0)
+
+    Haptic_coord = set_user_cart_coord(u1 = Vector_x, v1 = Vector_y, pos = Origin)
+    set_ref_coord(Haptic_coord)
 
     while not rospy.is_shutdown():
-        # rospy.Subscriber("/HapticInfo", PoseStamped, callback_haptic)
-        # rospy.Subscriber(name = "/HapticOri", data_class = Pose, callback = callback_ori)
-        # rospy.spin()
-        
-        #rate.sleep()    
+        rospy.Subscriber("/HapticInfo", PoseStamped, callback_haptic)
+        rospy.Subscriber(name = "/HapticOri", data_class = Pose, callback = callback_ori)
+        rospy.spin()  
 
         """Initial Doosan robot vel, acc Settings"""
         # set_velx(20,20)  # set global task speed: 30(mm/sec), 20(deg/sec)
         # set_accx(60,40)  # set global task accel: 60(mm/sec2), 40(deg/sec2)
 
-        """Robot posx check"""
-        robot_pos = get_current_posx()
-        print('Current Robot POS = Rx : ', robot_pos[0][3], 'Ry : ', robot_pos[0][4], 'Rz : ', robot_pos[0][5])
+        """Robot posx check with respect to Haptic Coordinates"""
+        
+        # robot_pos, sol = get_current_posx(Haptic_coord)
+        # print('Current Robot POS = xyz : ', robot_pos,'Rx : ', robot_pos[3], 'Ry : ', robot_pos[4], 'Rz : ', robot_pos[5])
 
         """ 
         ROS 상 각도 값
-        Front 우측 45도 회전 : 85 -140 85
-        Front 우측 90도 회전시 각도 : 90 -90 90
-        다시 정면 : 120 180 120
-        Front 왼쪽 45도 회전 : 92 122 94
-        Front 왼쪽 회전시 각도 : 90 90 90
-        다시 정면 : 105 180 (=-180) 105
+        Front 우측 45도 회전 : 140 -89 -0.4
+        Front 우측 90도 회전시 각도 : 179 -89 0.1
+        다시 정면 : 91 -93 0
+        Front 왼쪽 45도 회전 : 38 -92 -2
+        Front 왼쪽 90도 회전 : 2 -90 -3
+        다시 정면 : 89 -89 0
 
-        뒤로 90도 누웠을 때 : 179 -88 -175
+        뒤로 45도 누웠을 때 : 90 -137 0
+        뒤로 90도 누웠을 때 : 96 -177 5
         뒤로 135도 누웠을 때 : 175 -50 -175
-        다시 정면 : 100 175 100
-        앞으로 45도 누움 : 175 135 175
-        앞으로 90도 누움 : 178 108 175
+        앞으로 45도 누움 : 90 -53 0
+        앞으로 90도 누움 : 89 -17 0
 
-        뒤로 45도 눕고 앞으로 좀 갔을 때 : 179 -138 179 (앞, 뒤 움직임 문제 없음)
-        앞으로 좀 누웠을 때 : 179 138 -179
+        뒤로 45도 눕고 왼쪽 회전 45도 : 49 -118 -22
 
         """
  
         
-
-

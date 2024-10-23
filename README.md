@@ -62,8 +62,8 @@ Using Rviz(Doosan Robot ROS Package)
 ROS topic to Unity: [JointStatePublisher] '/dsr01m1509/joint_states'
 ROS topic subscribed in Unity with: [JointValueSubscriber] (msg type: Sensor.JointState)
 
-*Moveit IK Solver time Problem
-Current vel 500, acc 1000 / Threshold 1mm, 0.1degrees
+*Moveit IK Solver timing
+Current vel 500, acc 2000 / Threshold 1mm, 0.1degrees / Sensitivity S = 500   
 
 Workspace
 Distinguisher as ROS topic: /ToolEnd

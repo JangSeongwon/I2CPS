@@ -63,11 +63,16 @@ ROS topic to Unity: [JointStatePublisher] '/dsr01m1509/joint_states'
 ROS topic subscribed in Unity with: [JointValueSubscriber] (msg type: Sensor.JointState)
 
 *Moveit IK Solver time Problem
-Current vel 1000, acc 5000 / Threshold 1mm, 3mm Testing
+Current vel 500, acc 1000 / Threshold 1mm, 0.1degrees
 
 Workspace
 Distinguisher as ROS topic: /ToolEnd
 Global Coordinate limitation of the workspace: (x, y, z) = (-0.15 ~ 0.15, -0.005 ~ 0.16, 0.25 ~ 0.55) 30cm Cube with Target at center
+
+Coordinate Settings
+u1 = [0,-1,0]
+v1 = [0,0,1]
+O = (0,0,0)
 
 Data Communication Speed settings:
 https://answers.ros.org/question/332192/difference-between-rospyspin-and-rospysleep/

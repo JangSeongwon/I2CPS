@@ -69,31 +69,34 @@ def callback_ori(msg):
     ORI = msg.orientation
     robot_home_ori = [89.976, -89.282, 0.227]
     robot_pos_fixed = get_current_posx()
+    getfromtuple = robot_pos_fixed[0]
     # print('Current Robot POS = ', robot_pos_fixed)
 
-    Haptic_Rx = ORI.x
-    Haptic_Ry = ORI.y
-    # Haptic_Rz = ORI.z
-    Rx = round(robot_home_ori[0] + Haptic_Rx, 1)
-    Ry = round(robot_home_ori[0] + Haptic_Ry, 1)
-    Rz = round(robot_home_ori[0], 1)
+    '''
+    Haptic Input Into New ROS Coordinates
+    Haptic X: -130도~60도, Haptic Z: -150도~160도
+    '''
+    Haptic_Rx = ORI.x + 35
+    # Haptic_Ry = ORI.y
+    Haptic_Rz = (ORI.z - 5)/(1.5)
+    Rx = round(getfromtuple[3] + Haptic_Rz, 1)
+    Ry = round(getfromtuple[4] + Haptic_Rx, 1)
+    Rz = round(getfromtuple[5], 1)
 
     Rx_c = robot_pos_fixed[0][3] 
     Ry_c = robot_pos_fixed[0][4]
     Rz_c = robot_pos_fixed[0][5]
-
     # print('Haptic Orientaion Input : ', Rx, Ry, Rz)
 
-    getfromtuple = robot_pos_fixed[0]
     Fixed_x = round(getfromtuple[0], 1)
     Fixed_y = round(getfromtuple[1], 1)
     Fixed_z = round(getfromtuple[2], 1)
 
     eef = [Fixed_x, Fixed_y, Fixed_z, Rx, Ry, Rz]
-    velx=[20, 120]
-    accx=[40, 240]
+    velx=[500, 120]
+    accx=[1000, 240]
     
-    if (abs(Rx_c - Rx) < 0.5) and (abs(Ry_c - Ry) < 0.5) and (abs(Rz_c - Rz) < 0.5):
+    if (abs(Rx_c - Rx) < 0.1) and (abs(Ry_c - Ry) < 0.1) and (abs(Rz_c - Rz) < 0.1):
         end1 = time.time()
         # print(end1-start)
         return
@@ -151,3 +154,5 @@ if __name__ == "__main__":
         """
  
         
+
+

@@ -82,7 +82,7 @@ namespace RosSharp.RosBridgeClient
         {
             UpdateKeys();
 
-            // Receive joint values for every 0.1s from ROS Ik Solver
+            // Receive joint values for every 0.01s from ROS#
             JointValueSubscriber = (RosSharp.RosBridgeClient.JointValueSubscriber)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.JointValueSubscriber));
             StartCoroutine(MoveRobot());
 
@@ -90,7 +90,7 @@ namespace RosSharp.RosBridgeClient
             // When reached the Workspace
             ToolEndPOS = ToolEnd.position;
             //print($"ToolEnd POS, {ToolEndPOS.x}, {ToolEndPOS.y}, {ToolEndPOS.z}");
-            if (-0.15f < ToolEndPOS.x && ToolEndPOS.x < 0.15f && -0.05f < ToolEndPOS.y && ToolEndPOS.y < 0.16f && 0.25f < ToolEndPOS.z && ToolEndPOS.z < 0.55f)
+            if (-0.1f < ToolEndPOS.x && ToolEndPOS.x < 0.1f && 0.0f < ToolEndPOS.y && ToolEndPOS.y < 0.1f && 0.3f < ToolEndPOS.z && ToolEndPOS.z < 0.5f)
             {
                 print("Reached the Workspace");
                 CameraEnvspace.targetDisplay = 1;

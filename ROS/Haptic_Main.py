@@ -76,12 +76,12 @@ def callback_ori(msg):
     Haptic Input Into New ROS Coordinates
     Haptic X: -130도~60도, Haptic Z: -150도~160도
     '''
-    Haptic_Rx = ORI.x + 35
+    Haptic_Rx = ORI.x
     # Haptic_Ry = ORI.y
-    Haptic_Rz = (ORI.z - 5)/(1.5)
-    Rx = round(getfromtuple[3] + Haptic_Rz, 1)
-    Ry = round(getfromtuple[4] + Haptic_Rx, 1)
-    Rz = round(getfromtuple[5], 1)
+    Haptic_Rz = (ORI.z / 1.5)
+    Rx = round(robot_home_ori[0] + Haptic_Rz, 1)
+    Ry = round(robot_home_ori[1] + Haptic_Rx, 1)
+    Rz = round(robot_home_ori[2], 1)
 
     Rx_c = robot_pos_fixed[0][3] 
     Ry_c = robot_pos_fixed[0][4]
@@ -103,7 +103,7 @@ def callback_ori(msg):
     else:
         amovel(eef, velx, accx, ref = Haptic_coord)
         robot_pos_check = get_current_posx()
-        # print('Haptic Orientaion Input', 'x : 170 ', Rx, 'y : 180 ', Ry, 'z : 170 ', Rz)
+        # print('Haptic Orientaion Input', 'x : 90 ', Rx, 'y : -90 ', Ry, 'z : 0 ', Rz)
         # print('Current Robot ORI = ', robot_pos_check[0][3], robot_pos_check[0][4], robot_pos_check[0][5])
         end = time.time()
         print(end-start)

@@ -36,9 +36,9 @@ def callback_haptic(msg):
     robot_pos = [-33.233, 436.660, -368.990, 89.976, -89.282, 0.227]
     
     '''ROS Coordinate (Hapticx = ROSx, Hapticy = ROSy, Hapticz = -ROSz)'''
-    x = round(robot_pos[0] + Hapticx*2000, 1)
-    y = round(robot_pos[1] + Hapticy*2000, 1)
-    z = round(robot_pos[2] - Hapticz*2000, 1)
+    x = round(robot_pos[0] + Hapticx*500, 1)
+    y = round(robot_pos[1] + Hapticy*500, 1)
+    z = round(robot_pos[2] - Hapticz*500, 1)
 
     robot_pos_c = get_current_posx()
     getfromtuple = robot_pos_c[0]
@@ -55,9 +55,9 @@ def callback_haptic(msg):
     accx=[1000, 240]
 
     """오차 범위"""
-    if (abs(current_x - x) < 1) and (abs(current_y - y) < 1) and (abs(current_z - z) < 1):
+    if (abs(current_x - x) < 0.5) and (abs(current_y - y) < 0.5) and (abs(current_z - z) < 0.5):
         end1 = time.time()
-        # print(end1-start)
+        # print("No Move", end1-start)
         return
     else:
         amovel(eef, velx, accx)
@@ -109,30 +109,49 @@ def callback_ori(msg):
         print(end-start)
 
     return
- 
 
+def robot_state_publisher():
+    robot_pos_t, sol_t = get_current_posx(Haptic_coord)
+    pub = rospy.Publisher('Operator_Traj', PoseStamped, queue_size=3)
+    operator_trajectory = PoseStamped()
+    operator_trajectory.header.stamp = rospy.Time.now()
+    operator_trajectory.pose.position.x = robot_pos_t[0] 
+    operator_trajectory.pose.position.y = robot_pos_t[1]
+    operator_trajectory.pose.position.z = robot_pos_t[2]
+    operator_trajectory.pose.orientation.x = robot_pos_t[3]
+    operator_trajectory.pose.orientation.y = robot_pos_t[4]
+    operator_trajectory.pose.orientation.x = robot_pos_t[5]
+    operator_trajectory.pose.orientation.w = 0
+    # print(operator_trajectory.pose.position, operator_trajectory.pose.orientation)
+    pub.publish(operator_trajectory)
+    # rospy.loginfo(operator_trajectory)
+   
 if __name__ == "__main__":
     rospy.init_node('Haptic')
-    rate = rospy.Rate(20)
+    r = rospy.Rate(50)
     Vector_x = [0, -1, 0]
     Vector_y = [0, 0, 1]
     Origin = posx(0,0,0,0,0,0)
-
     Haptic_coord = set_user_cart_coord(u1 = Vector_x, v1 = Vector_y, pos = Origin)
     set_ref_coord(Haptic_coord)
 
     while not rospy.is_shutdown():
-        rospy.Subscriber("/HapticInfo", PoseStamped, callback_haptic)
+        rospy.Subscriber(name = "/HapticInfo", data_class = PoseStamped, callback = callback_haptic)
         rospy.Subscriber(name = "/HapticOri", data_class = Pose, callback = callback_ori)
-        rospy.spin()  
-
+        robot_state_publisher()
+        r.sleep()
+        # rospy.spin()
+        
         """Initial Doosan robot vel, acc Settings"""
         # set_velx(20,20)  # set global task speed: 30(mm/sec), 20(deg/sec)
         # set_accx(60,40)  # set global task accel: 60(mm/sec2), 40(deg/sec2)
 
         """Robot posx check with respect to Haptic Coordinates"""
         # robot_pos, sol = get_current_posx(Haptic_coord)
-        # print('Current Robot POS = xyz : ', robot_pos,'Rx : ', robot_pos[3], 'Ry : ', robot_pos[4], 'Rz : ', robot_pos[5])
+        # print('Current Robot POS = xyz : ', robot_pos[0], robot_pos[1], robot_pos[2],'Rx : ', robot_pos[3], 'Ry : ', robot_pos[4], 'Rz : ', robot_pos[5])
+
+        # robot_joint_state = get_current_posj()
+        # print('Current Joint States', robot_joint_state[0]*pi/180, robot_joint_state[1]*pi/180, robot_joint_state[2]*pi/180, robot_joint_state[3]*pi/180, robot_joint_state[4]*pi/180, robot_joint_state[5]*pi/180)
 
         """ 
         ROS 상 각도 값

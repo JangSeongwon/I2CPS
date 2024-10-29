@@ -79,6 +79,8 @@ https://answers.ros.org/question/332192/difference-between-rospyspin-and-rospysl
 
 Current Error: callback OnLogAlarm. Level.2 1209에러: 입력된 목표 속도 (TASK)가 사용자 LIMIT을 벗어날을 때 나는 에러
 
+Python코드 : chmod +x [file명]
+
 ```
 
 --------------------------

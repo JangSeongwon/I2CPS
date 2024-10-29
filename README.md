@@ -82,6 +82,10 @@ Current Error: callback OnLogAlarm. Level.2 1209에러: 입력된 목표 속도 
 Python코드 : chmod +x [file명]
 
 ```
+3. Operator Data
+```
+Receiving speed : MAX 33 Hz 
+```
 
 --------------------------
 

@@ -5,7 +5,6 @@ namespace RosSharp.RosBridgeClient
 {
     public class ForceFeedbackSubscriber : UnitySubscriber<MessageTypes.robotiq_ft_sensor.ft_sensor>
     {
-        public bool isMessageReceived;
         public double Fx;
         public double Fy;
         public double Fz;
@@ -16,15 +15,6 @@ namespace RosSharp.RosBridgeClient
         protected override void Start()
         {
             base.Start();
-            isMessageReceived = false;
-
-        }
-
-        private void Update()
-        {
-            if (isMessageReceived)
-                ProcessMessage();
-
         }
 
         protected override void ReceiveMessage(MessageTypes.robotiq_ft_sensor.ft_sensor message)
@@ -36,13 +26,6 @@ namespace RosSharp.RosBridgeClient
             Mx = (double)message.Mx;
             My = (double)message.My;
             Mz = (double)message.Mz;
-
-            isMessageReceived = true;
-        }
-
-        private void ProcessMessage()
-        {
-            isMessageReceived = false;
         }
     }
 

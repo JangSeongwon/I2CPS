@@ -25,12 +25,15 @@ namespace RosSharp.RosBridgeClient
         public Camera CameraRobotView2;
         public Camera CameraWorkspace_support;
         public Camera Haptic_workspace_View;
+        public Canvas Canvas1;
+        public Canvas Canvas2;
 
         public Transform ToolEnd;
         public Vector3 ToolEndPOS;
 
         string filename = "";
         string filename_opt = "";
+        public int count;
         public int recording_operator;
         private List<float> operator_data;
         public List<float> operator_data_saved = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -47,7 +50,7 @@ namespace RosSharp.RosBridgeClient
             ToolEndPOS = ToolEnd.position;
             // Operator Settings
             recording_operator = 0;
-
+            count = 0;
             // 1. Set Robot into Home position 
             jointPositions = new List<float> { 0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f };
             Home.SetJointPositions(jointPositions);
@@ -70,11 +73,6 @@ namespace RosSharp.RosBridgeClient
             if (-0.15f < ToolEndPOS.x && ToolEndPOS.x < 0.15f && 0.0f < ToolEndPOS.y && ToolEndPOS.y < 0.15f && 0.25f < ToolEndPOS.z && ToolEndPOS.z < 0.55f)
             {
                 print("Reached the Workspace");
-                CameraEnvspace.targetDisplay = 1;
-                CameraRobotView1.targetDisplay = 1;
-                CameraWorkspace.targetDisplay = 0;
-                CameraRobotView2.targetDisplay = 0;
-                CameraWorkspace_support.targetDisplay = 0;
             }
 
             if (recording_operator == 1)
@@ -156,8 +154,8 @@ namespace RosSharp.RosBridgeClient
 
         public void Trajectory_Optimzer()
         {
-            filename = Application.dataPath + "/Scripts/operator_trajectory.csv";
-            filename_opt = Application.dataPath + "/Scripts/operator_trajectory_opt.csv";
+            filename = Application.dataPath + $"/Scripts/operator_trajectory_{count}.csv";
+            filename_opt = Application.dataPath + $"/Scripts/operator_trajectory_opt_{count}.csv";
             ReadDone = false;
             TextWriter tws = new StreamWriter(filename_opt, false);
             tws.WriteLine("X, Y, Z, ORI.x, ORI.y, ORI.z, J1, J2, J3, J4, J5, J6, Fx, Fy, Fz, Mx, My, Mz");
@@ -222,13 +220,15 @@ namespace RosSharp.RosBridgeClient
         public void recording_start()
         {
             print("Record Trajectory");
+            count ++;
+            print(count);
             recording_operator = 1;
-            filename = Application.dataPath + "/Scripts/operator_trajectory.csv";
+            filename = Application.dataPath + $"/Scripts/operator_trajectory_{count}.csv";
             Operator_data();
         }
         public void recording_end()
         {
-            print("End Recording Trajectory");
+            print("End of Recording Trajectory (Please Optimize the Recorded Trajectory)");
             recording_operator = 0;
         }
 
@@ -246,22 +246,26 @@ namespace RosSharp.RosBridgeClient
             // Key to change Camera for workspace
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                print("Camera Change");
+                print("Display Change");
                 if (CameraEnvspace.targetDisplay == 0)
                 {
                     CameraEnvspace.targetDisplay = 1;
                     CameraRobotView1.targetDisplay = 1;
+                    Canvas1.targetDisplay = 1;
                     CameraWorkspace.targetDisplay = 0;
                     CameraRobotView2.targetDisplay = 0;
                     Haptic_workspace_View.targetDisplay = 0;
+                    Canvas2.targetDisplay = 0;
                 }
                 else if (CameraWorkspace.targetDisplay == 0)
                 {
+                    Canvas2.targetDisplay = 1;
                     CameraWorkspace.targetDisplay = 1;
                     CameraRobotView2.targetDisplay = 1;
+                    Haptic_workspace_View.targetDisplay = 1;
                     CameraEnvspace.targetDisplay = 0;
                     CameraRobotView1.targetDisplay = 0;
-                    Haptic_workspace_View.targetDisplay = 1;
+                    Canvas1.targetDisplay = 0;
                 }
             }
             // Key to not use haptic

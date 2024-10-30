@@ -34,9 +34,9 @@ def callback_pos(msg):
     robot_pos = [-33.208, 426.252, -374.960, 89.988, -87.678, 0.227]
     
     '''ROS Coordinate (Hapticx = ROSx, Hapticy = ROSy, Hapticz = -ROSz)'''
-    x = round(robot_pos[0] + Hapticx*500, 1)
-    y = round(robot_pos[1] + Hapticy*500, 1)
-    z = round(robot_pos[2] - Hapticz*500, 1)
+    x = round(robot_pos[0] + Hapticx*1000, 1)
+    y = round(robot_pos[1] + Hapticy*1000, 1)
+    z = round(robot_pos[2] - Hapticz*1000, 1)
 
     robot_pos_c = get_current_posx(Haptic_coord)
     getfromtuple = robot_pos_c[0]
@@ -50,7 +50,7 @@ def callback_pos(msg):
 
     eef = [x, y, z, current_Rx, current_Ry, current_Rz]
     velx=[500, 120]
-    accx=[1000, 240]
+    accx=[2000, 240]
 
     """Publish"""
     operator_trajectory = PoseStamped()
@@ -87,14 +87,13 @@ def callback_ori(msg):
     Haptic Input Into New ROS Coordinates
     Haptic X: -130도~60도, Haptic Z: -150도~160도
     '''
-    sensitivity_x = 2
-    sensitivity_z = 3
+    sensitivity_x = 5
+    sensitivity_z = 5
     Haptic_Rx = (ORI.x / sensitivity_x)
     # Haptic_Ry = ORI.y
     Haptic_Rz = (ORI.z / sensitivity_z)
     Rx = round(robot_home_ori[0] + Haptic_Rz, 3)
     Ry = round(robot_home_ori[1] + Haptic_Rx, 3)
-    Rz = round(robot_home_ori[2], 3)
 
     Rx_c = robot_pos_current[0][3] 
     Ry_c = robot_pos_current[0][4]
@@ -105,9 +104,9 @@ def callback_ori(msg):
     Fixed_y = round(getfromtuple[1], 3)
     Fixed_z = round(getfromtuple[2], 3)
 
-    eef = [Fixed_x, Fixed_y, Fixed_z, Rx, Ry, Rz]
+    eef = [Fixed_x, Fixed_y, Fixed_z, Rx, Ry, Rz_c]
     velx=[500, 120]
-    accx=[1000, 240]
+    accx=[2000, 240]
 
     """Publish"""
     operator_trajectory = PoseStamped()
@@ -117,12 +116,12 @@ def callback_ori(msg):
     operator_trajectory.pose.position.z = Fixed_z
     operator_trajectory.pose.orientation.x = Rx_c
     operator_trajectory.pose.orientation.y = Ry_c
-    operator_trajectory.pose.orientation.x = Rz_c
+    operator_trajectory.pose.orientation.z = Rz_c
     operator_trajectory.pose.orientation.w = 0
     # print(operator_trajectory.pose.position, operator_trajectory.pose.orientation)
     pub.publish(operator_trajectory) 
     
-    if (abs(Rx_c - Rx) < 0.1) and (abs(Ry_c - Ry) < 0.1) and (abs(Rz_c - Rz) < 0.1):
+    if (abs(Rx_c - Rx) < 0.1) and (abs(Ry_c - Ry) < 0.1):
         end1 = time.time()
         # print(end1-start)
         return

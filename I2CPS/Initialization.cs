@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using System.Linq;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -29,9 +30,13 @@ namespace RosSharp.RosBridgeClient
         public Vector3 ToolEndPOS;
 
         string filename = "";
+        string filename_opt = "";
         public int operator_mode;
         private List<float> operator_data;
-        private List<double> operator_data_force;
+        public List<float> operator_data_saved = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public List<float> operator_data_new = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public bool ReadDone;
+
 
         // Start is called before the first frame update
         protected void Start()
@@ -43,6 +48,7 @@ namespace RosSharp.RosBridgeClient
             // Operator Settings
             operator_mode = 0;
             filename = Application.dataPath + "/Scripts/operator_trajectory.csv";
+            filename_opt = Application.dataPath + "/Scripts/operator_trajectory_opt.csv";
 
             // 1. Set Robot into Home position 
             jointPositions = new List<float> { 0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f };
@@ -50,6 +56,8 @@ namespace RosSharp.RosBridgeClient
 
             // 2. Show the Manual
 
+            double x = Math.Sqrt(Math.Pow(0.001, 2));
+            print(x);
 
         }
 
@@ -119,7 +127,6 @@ namespace RosSharp.RosBridgeClient
                 tw.Write(operator_data[i]);
                 tw.Write(",");
             }
-            tw.Write(",");
             tw.WriteLine();
             tw.Close();
             // print($"See operator data, {operator_data[0]}, {operator_data[1]}, {operator_data[2]}, {operator_data[3]}, {operator_data[4]}, {operator_data[5]}, {operator_data[6]}");
@@ -128,7 +135,7 @@ namespace RosSharp.RosBridgeClient
         public void Operator_data()
         {
             TextWriter tw = new StreamWriter(filename, false);          
-            tw.WriteLine("X, Y, Z, ORI.x, ORI.y, ORI.z, J1, J2, J3, J4, J5, J6, Fx, Fy, Fz, Frx,Fry, Frz, time");
+            tw.WriteLine("X, Y, Z, ORI.x, ORI.y, ORI.z, J1, J2, J3, J4, J5, J6, Fx, Fy, Fz, Mx, My, Mz, time");
             tw.Close();
         }
 
@@ -154,8 +161,69 @@ namespace RosSharp.RosBridgeClient
                 yield return new WaitForSeconds(0.01f);
             }
         }
+
+        private void Trajectory_Optimzer()
+        {
+            ReadDone = false;
+            TextWriter tws = new StreamWriter(filename_opt, false);
+            tws.WriteLine("X, Y, Z, ORI.x, ORI.y, ORI.z, J1, J2, J3, J4, J5, J6, Fx, Fy, Fz, Mx, My, Mz");
+            tws.Close();
+
+            StreamReader reader = new StreamReader(filename);
+            while (ReadDone == false)
+            {
+                string ReadData = reader.ReadLine();
+                // print(ReadData);
+                if (ReadData == null)
+                {
+                    ReadDone=true;
+                    break;
+                }
+                string[] Data = ReadData.Split(',');
+                //print($"{Data[0]},{Data[1]},{Data[2]},{Data[3]},{Data[4]},{Data[5]}");
+                
+                for (int i = 0; i < 18; i++)
+                {
+                    operator_data_new[i] = float.Parse(Data[i]);
+                    //print($"{i}, {operator_data_new[i]}");
+                }
+                // print($"New,{operator_data_new[0]}, {operator_data_new[1]}, {operator_data_new[2]}, {operator_data_new[3]}, {operator_data_new[4]}, {operator_data_new[5]}");
+
+                double distance_threshold = Math.Sqrt(Math.Pow(operator_data_saved[0] - operator_data_new[0], 2) + Math.Pow(operator_data_saved[1] - operator_data_new[1], 2) + Math.Pow(operator_data_saved[2] - operator_data_new[2], 2));
+                double orientational_threshold = Math.Sqrt(Math.Pow(operator_data_saved[3] - operator_data_new[3], 2) + Math.Pow(operator_data_saved[4] - operator_data_new[4], 2) + Math.Pow(operator_data_saved[5] - operator_data_new[5], 2));
+                double force_threshold = Math.Sqrt(Math.Pow(operator_data_saved[12] - operator_data_new[12], 2) + Math.Pow(operator_data_saved[13] - operator_data_new[13], 2) + Math.Pow(operator_data_saved[14] - operator_data_new[14], 2));
+
+                // print($" {operator_data_saved[0]}, {operator_data_new[0]}, {Math.Pow(operator_data_saved[0] - operator_data_new[0], 2)}");
+                //print($"Threshold values, {distance_threshold}, {orientational_threshold}, {force_threshold}");
+                if ((distance_threshold > 0.01 && force_threshold > 0.1) || (orientational_threshold > 0.01 && force_threshold > 0.1))
+                {
+                    // print($"Threshold exist, {distance_threshold}");
+                    StreamWriter tww;
+                    tww = File.AppendText(filename_opt);
+                    for (int i = 0; i < 18; i++)
+                    {
+                        tww.Write(operator_data_new[i]);
+                        tww.Write(",");
+                    }
+                    tww.Write(",");
+                    tww.WriteLine();
+                    tww.Close();
+                    operator_data_saved = operator_data_new.ToList();
+                }
+                else
+                {
+                    operator_data_saved = operator_data_saved;
+                    // print(operator_data_saved[0]);
+                }
+                // print($"Saved,{operator_data_saved[0]}, {operator_data_saved[1]}, {operator_data_saved[2]}, {operator_data_saved[3]}, {operator_data_saved[4]}, {operator_data_saved[5]}");
+
+            }
+
+        }
+
         private void UpdateKeys()
         {
+            //Make Button UI for Recording Operator's data 
 
             //if (Input.GetKeyDown(KeyCode.H))
             //{
@@ -169,7 +237,17 @@ namespace RosSharp.RosBridgeClient
                 print("Record Trajectory");
                 operator_mode = 1;
                 Operator_data();
+            }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                print("Stop Recording Trajectory");
+                operator_mode = 0;
+            }
 
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                print("Optimize recorded Trajectory");
+                Trajectory_Optimzer();
             }
 
             // Key to change Camera for workspace

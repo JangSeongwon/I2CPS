@@ -11,12 +11,14 @@ namespace RosSharp.RosBridgeClient
         protected override void Start()
         {
             base.Start();
+            HapticOriPublisher = (RosSharp.RosBridgeClient.HapticOriPublisher)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.HapticOriPublisher));
             Home_mode = HapticOriPublisher.Orientation_mode;
             InitializeMessage();
         }
 
         private void FixedUpdate()
         {
+            Home_mode = HapticOriPublisher.Orientation_mode;
             if (Home_mode == 2)
             {
                 SendMessageHome();
@@ -50,8 +52,8 @@ namespace RosSharp.RosBridgeClient
             else
                 geometryQuaternion.z = euler.z;
             geometryQuaternion.w = 0.0f;
-            print($"See Haptic Orientation, X: {euler.x}, Y: {euler.y}, Z: {euler.z}");
-            print($"See Haptic Orientation, {geometryQuaternion.x}, {geometryQuaternion.y}, {geometryQuaternion.z}");        
+            // print($"See Haptic Orientation, X: {euler.x}, Y: {euler.y}, Z: {euler.z}");
+            // print($"See Haptic Orientation, {geometryQuaternion.x}, {geometryQuaternion.y}, {geometryQuaternion.z}");        
 
         }
     }

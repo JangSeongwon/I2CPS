@@ -8,7 +8,7 @@ namespace RosSharp.RosBridgeClient
     {
         public Transform PublishedTransform;
         public string FrameId = "Unity";
-
+        public HapticOriPublisher HapticOriPublisher;
         private MessageTypes.Geometry.PoseStamped message;
         public int Pose_mode;
 
@@ -16,31 +16,15 @@ namespace RosSharp.RosBridgeClient
         {
             base.Start();
             InitializeMessage();
-            Pose_mode = 0;
+            Pose_mode = HapticOriPublisher.Pose_mode;
         }
 
         private void FixedUpdate()
         {
-            UpdateKeys();
             if (Pose_mode == 0)
                 UpdateMessage();
             else
                 return;
-        }
-
-        private void UpdateKeys()
-        {
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                if (Pose_mode == 0)
-                {
-                    Pose_mode = 1;
-                }
-                else if (Pose_mode == 1)
-                    Pose_mode = 2;
-                else if (Pose_mode == 2)
-                    Pose_mode = 0;
-            }
         }
 
             private void InitializeMessage()
@@ -77,8 +61,8 @@ namespace RosSharp.RosBridgeClient
 
         private static void GetGeometryPoint(Vector3 position, MessageTypes.Geometry.Point geometryPoint)
         {
-            geometryPoint.x = position.x - 3;
-            geometryPoint.y = position.y + 0.5;
+            geometryPoint.x = position.x - 4;
+            geometryPoint.y = position.y - 1;
             geometryPoint.z = position.z;
         }
 

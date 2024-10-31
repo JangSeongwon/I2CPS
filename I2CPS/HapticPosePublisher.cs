@@ -16,13 +16,17 @@ namespace RosSharp.RosBridgeClient
         {
             base.Start();
             InitializeMessage();
+            HapticOriPublisher = (RosSharp.RosBridgeClient.HapticOriPublisher)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.HapticOriPublisher));
             Pose_mode = HapticOriPublisher.Pose_mode;
         }
 
         private void FixedUpdate()
         {
+            Pose_mode = HapticOriPublisher.Pose_mode;
             if (Pose_mode == 0)
+            {
                 UpdateMessage();
+            }
             else
                 return;
         }

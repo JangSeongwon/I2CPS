@@ -7,6 +7,7 @@ namespace RosSharp.RosBridgeClient
         public Transform PublishedTransform;
        
         private MessageTypes.Geometry.Pose message;
+        public int Pose_mode;
         public int Orientation_mode;
         public Vector3 Saved_Ori_i;
         public Vector3 Saved_Ori;
@@ -16,6 +17,7 @@ namespace RosSharp.RosBridgeClient
             base.Start();
             InitializeMessage();
             Orientation_mode = 0;
+            Pose_mode = 0;
         }
 
         private void FixedUpdate()
@@ -24,26 +26,24 @@ namespace RosSharp.RosBridgeClient
             {
                 UpdateMessage();
             }
-            else if (Orientation_mode == 2)
-            {
-                SendMessageHome();
-            }
         }
 
         public void orientation_change()
         {
+            Pose_mode = 1;
             Saving_Initial_Ori();
-            print("Saving current Orientation of Haptic");
             Orientation_mode = 1;
             print("Robot's Orientation Modification with Haptic X,Z Rotation");
         }
         public void orientation_fix()
         {
             Orientation_mode = 0;
+            Pose_mode = 0;
             print("Fix Robot's Orientation");
         }
         public void orientation_home()
         {
+            Pose_mode = 1;
             Orientation_mode = 2;
             print("Return to Robot's Home Orientation");
         }
@@ -51,6 +51,7 @@ namespace RosSharp.RosBridgeClient
         private void InitializeMessage()
         {
             message = new MessageTypes.Geometry.Pose();
+
         }
 
         private void Saving_Initial_Ori()
@@ -71,15 +72,6 @@ namespace RosSharp.RosBridgeClient
             else
                 Saved_Ori.z = Saved_Ori_i.z;
             print($"Saving Current Haptic Orientation, {Saved_Ori}");
-        }
-
-        private void SendMessageHome()
-        {
-            message.orientation.x = 89.988;
-            message.orientation.y = -87.678;
-            message.orientation.z = 0.227;
-            message.orientation.w = 0.0f;
-            Publish(message);
         }
 
         private void UpdateMessage()
@@ -117,8 +109,8 @@ namespace RosSharp.RosBridgeClient
             else
                 geometryQuaternion.z = euler.z - Saved_Ori.z;
             geometryQuaternion.w = 0.0f;
-            //print($"See Haptic Orientation, X: {euler.x}, {Saved_Ori.x}, Y: {euler.y}, {Saved_Ori.y}, Z: {euler.z}, {Saved_Ori.z}");
-            //print($"See Haptic Orientation, {geometryQuaternion.x}, {geometryQuaternion.y}, {geometryQuaternion.z}");        
+            // print($"See Haptic Orientation, X: {euler.x}, {Saved_Ori.x}, Y: {euler.y}, {Saved_Ori.y}, Z: {euler.z}, {Saved_Ori.z}");
+            // print($"See Haptic Orientation, {geometryQuaternion.x}, {geometryQuaternion.y}, {geometryQuaternion.z}");        
         }
     }
 }

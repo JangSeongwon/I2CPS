@@ -32,7 +32,7 @@ namespace RosSharp.RosBridgeClient
 
         private void SendMessageHome()
         {
-            Vector3 euler = new Vector3 ( 0, 0, 0);
+            Vector3 euler = new Vector3 ( 0f, 0f, 0f);
             GetGeometryEuler(euler, message_home.orientation);
             Publish(message_home);
         }

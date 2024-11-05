@@ -17,6 +17,11 @@ ROS topic: /robotiq_ft_sensor
 Subscriber: ForceFeedbackSubscriber
 Feedback to Haptic: [HapticPlugin.setForce(deviceName, lateral3, torque3);]
 ```
+```
+C#
+Array: double[] x = new double[size];
+List: List<double> x = new List<double> {0,0};
+```
 
 2. Doosan Robot in Unity
 ```

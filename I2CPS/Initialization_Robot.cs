@@ -33,24 +33,29 @@ namespace RosSharp.RosBridgeClient
         public Transform ToolEnd;
         public Vector3 ToolEndPOS;
         public bool ReadDone;
-        string input_filename = "";
+
+        public bool ReadDonecheck;
+        string combining_filename_tuned = "";
+        string combined_filename = "";
+        string input_filename_execute = "";
         public float[] joint_data_read = new float[6];
         public int moving_count;
+        public double[] read_operator_data = new double[6];
 
         // Start is called before the first frame update
         protected void Start()
         {
             print("Welcome to Digital-Twin");
-            moving_count = 0;
             // Camera Settings
             HapticWorkspaceView.targetDisplay = 0;
-            ToolEndPOS = ToolEnd.position;
-            
+
             // 1. Set Robot into Home position 
             jointPositions = new List<float> { 0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f };
             Home.SetJointPositions(jointPositions);
+            //2. Robot Moving Settings
+            moving_count = 0;
 
-            // 2. Show the Manual
+            // 3. Show the Manual
 
         }
 
@@ -131,15 +136,65 @@ namespace RosSharp.RosBridgeClient
 
         public void getRobotSolution()
         {
+            combined_filename = Application.dataPath + $"/Scripts/Optimal Trajectory/operator_trajectory_final.csv";
+            TextWriter tw = new StreamWriter(combined_filename, false);
+            tw.WriteLine("X, Y, Z, ORI.x, ORI.y, ORI.z");
+            tw.Close();
+
+            for (int record_num = 1; record_num < 100; record_num++)
+            {
+                ReadDonecheck = false;
+                //print($"Record Num: {record_num}");
+                combining_filename_tuned = Application.dataPath + $"/Scripts/operator_trajectory_tuning_{record_num}.csv";
+                try
+                {
+                    StreamReader reader = new StreamReader(combining_filename_tuned);
+                    while (ReadDonecheck == false)
+                    {
+                        string ReadData = reader.ReadLine();
+                        // print(ReadData);
+                        if (ReadData == null)
+                        {
+                            ReadDonecheck = true;
+                            break;
+                        }
+                        string[] Data = ReadData.Split(',');
+                        // print($"{Data[0]},{Data[1]},{Data[2]},{Data[3]},{Data[4]},{Data[5]}");
+                        if (Data[0] == "X")
+                        {
+                            continue;
+                        }
+
+                        StreamWriter tww;
+                        tww = File.AppendText(combined_filename);
+
+                        for (int i = 0; i < 6; i++)
+                        {
+                            read_operator_data[i] = float.Parse(Data[i]);
+                            tww.Write(read_operator_data[i]);
+                            tww.Write(",");
+                        }
+                        tww.WriteLine();
+                        tww.Close();
+                    }
+                }
+                catch (FileNotFoundException) 
+                {
+                    print($"Combined {record_num-1} Records");
+                    break;
+                }  
+            }
+
             IkinServiceTest = (RosSharp.RosBridgeClient.IkinServiceTest)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.IkinServiceTest));
             IkinServiceTest.getrobotsolution();
             print("Received Solution");
         }
+
         public void executeRobot()
         {
             ReadDone = false;
-            input_filename = Application.dataPath + $"/Scripts/Solution/joint_solution.csv";
-            StreamReader reader = new StreamReader(input_filename);
+            input_filename_execute = Application.dataPath + $"/Scripts/Solution/joint_solution_checking.csv";
+            StreamReader reader = new StreamReader(input_filename_execute);
 
             while (ReadDone == false)
             {

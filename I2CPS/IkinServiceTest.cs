@@ -21,9 +21,11 @@ namespace RosSharp.RosBridgeClient
         public double[] operator_data_read = new double[6];
         public double[] joint_data = new double[6];
         public bool ReadDone;
-        public int get_response;
+        public DateTime time_start;
+        public DateTime time_start_as;
+        public DateTime time_end;
         public int count;
-        public bool isServiceCompleted;
+        public int count_as;
 
         void Start()
         {
@@ -60,6 +62,7 @@ namespace RosSharp.RosBridgeClient
                     continue;
                 }
 
+                count++;
                 for (int i = 0; i < 6; i++)
                 {
                     operator_data_read[i] = double.Parse(Data[i]);
@@ -68,15 +71,15 @@ namespace RosSharp.RosBridgeClient
                 sbyte refVal = 0;
                 //print($"{operator_data_read[0]},{operator_data_read[1]},{operator_data_read[2]},{operator_data_read[3]},{operator_data_read[4]},{operator_data_read[5]}");
                 //print("Send Service");
-                count++;
-                get_response = 1;
-                CallIkinService(operator_data_read, solSpace, refVal);
+                time_start = DateTime.Now;
+                print($"Service Calling time at {count}: {time_start}");
+                StartCoroutine(CallIkinService(operator_data_read, solSpace, refVal, count, time_start));
             }
         }
 
-        public IEnumerator CallIkinService(double[] pos, sbyte sol_space, sbyte @ref)
+        public IEnumerator CallIkinService(double[] pos, sbyte sol_space, sbyte @ref, int count, DateTime timestart)
         {
-            isServiceCompleted = false;
+            bool isServiceCompleted = false;
             IkinRequest request = new IkinRequest
             {
                 pos = pos,
@@ -84,49 +87,34 @@ namespace RosSharp.RosBridgeClient
                 @ref = @ref
             };
 
-            Debug.Log("Request Pos: " + string.Join(", ", pos));
+            // Debug.Log("Request Pos: " + string.Join(", ", pos));
             // Debug.Log("Sol Space: " + sol_space);
             // Debug.Log("Ref Val: " + @ref);
-
+            count_as = count;
+            time_start_as = timestart;
             RosConnector.RosSocket.CallService<IkinRequest, IkinResponse>(
-                ikin, ServiceRequestHandler, request);
-
-            while (!isServiceCompleted)
-            {
-                yield return null;
-            }
-        }
-
-        private void ServiceRequestHandler(IkinResponse response)
-        {
-            // Debug.Log("ServiceResponseHandler called");
-            if (response.success)
-            {
-                Debug.Log("Received joint positions: " + string.Join(", ", response.conv_posj));
-                
-                StreamWriter tw;
-                tw = File.AppendText(filename_sol);
-                for (int i = 0; i < 6; i++)
+                ikin, (response) =>
                 {
-                    joint_data[i] = response.conv_posj[i];
-                    //print($"See joint data, {i}, {joint_data[i]}");
-                    tw.Write(joint_data[i]);
-                    tw.Write(",");
-                }
-                tw.WriteLine();
-                tw.Close();
-                isServiceCompleted = true;
-            }
-            else
-            {
-                isServiceCompleted = true;
-                Debug.LogError("Failed to get joint position. Response details: " + FormatResponse(response));
-            }
+                    // Debug.Log("Received joint positions: " + string.Join(", ", response.conv_posj));
+
+                    StreamWriter tw;
+                    tw = File.AppendText(filename_sol);
+                    for (int i = 0; i < 6; i++)
+                    {
+                        joint_data[i] = response.conv_posj[i];
+                        //print($"See joint data, {i}, {joint_data[i]}");
+                        tw.Write(joint_data[i]);
+                        tw.Write(",");
+                    }
+                    tw.WriteLine();
+                    tw.Close();
+                    isServiceCompleted = true;
+                    time_end = DateTime.Now;
+                    print(time_end);
+                    print($"Service Returning & Recording time at {count_as}, time end: {time_end}, spent {time_end-time_start_as}");
+                }, request);
+            yield return isServiceCompleted;
         }
-        private string FormatResponse(IkinResponse response)
-        {
-            // Assuming IkinResponse has properties 'success' and 'conv_posj'
-            return $"success: {response.success}, conv_posj: [{(response.conv_posj != null ? string.Join(", ", response.conv_posj) : "null")}]";
-        }
+
     }
 }

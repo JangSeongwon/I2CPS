@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -21,6 +22,7 @@ namespace RosSharp.RosBridgeClient
 
         public Camera HapticWorkspaceView;
         public Camera HapticEnvironmentView;
+        public Camera HapticEnvironmentViewSupport;
         public Camera HapticDeviceView;
         public Camera RobotWorkspaceView;
         public Camera RobotActiveView;
@@ -32,12 +34,14 @@ namespace RosSharp.RosBridgeClient
         public Vector3 ToolEndPOS;
         public bool ReadDone;
         string input_filename = "";
-        public List<float> joint_data_read;
+        public float[] joint_data_read = new float[6];
+        public int moving_count;
 
         // Start is called before the first frame update
         protected void Start()
         {
             print("Welcome to Digital-Twin");
+            moving_count = 0;
             // Camera Settings
             HapticWorkspaceView.targetDisplay = 0;
             ToolEndPOS = ToolEnd.position;
@@ -102,7 +106,7 @@ namespace RosSharp.RosBridgeClient
                 {
                     HapticWorkspaceView.targetDisplay = 1;
                     HapticEnvironmentView.targetDisplay = 1;
-                    HapticDeviceView.targetDisplay = 1;
+                    HapticEnvironmentViewSupport.targetDisplay = 1;
                     Canvas1.targetDisplay = 1;
 
                     RobotWorkspaceView.targetDisplay = 0;
@@ -113,7 +117,7 @@ namespace RosSharp.RosBridgeClient
                 {
                     HapticWorkspaceView.targetDisplay = 0;
                     HapticEnvironmentView.targetDisplay = 0;
-                    HapticDeviceView.targetDisplay = 0;
+                    HapticEnvironmentViewSupport.targetDisplay = 0;
                     Canvas1.targetDisplay = 0;
 
                     RobotWorkspaceView.targetDisplay = 1;
@@ -127,38 +131,46 @@ namespace RosSharp.RosBridgeClient
 
         public void getRobotSolution()
         {
-            IkinServiceTest.getRobotSolution();
+            IkinServiceTest = (RosSharp.RosBridgeClient.IkinServiceTest)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.IkinServiceTest));
+            IkinServiceTest.getrobotsolution();
             print("Received Solution");
         }
         public void executeRobot()
         {
             ReadDone = false;
             input_filename = Application.dataPath + $"/Scripts/Solution/joint_solution.csv";
-            TextWriter tw = new StreamWriter(input_filename, false);
             StreamReader reader = new StreamReader(input_filename);
 
             while (ReadDone == false)
             {
                 string ReadData = reader.ReadLine();
-                // print(ReadData);
+                print(ReadData);
                 if (ReadData == null)
                 {
                     ReadDone = true;
                     break;
                 }
                 string[] Data = ReadData.Split(',');
-                // print($"{Data[0]},{Data[1]},{Data[2]},{Data[3]},{Data[4]},{Data[5]}");
-                if (Data[0] == "X")
+                print($"{Data[0]},{Data[1]},{Data[2]},{Data[3]},{Data[4]},{Data[5]}");
+                if (Data[0] == "J1")
                 {
                     continue;
                 }
-
-                for (int i = 0; i < 6; i++)
+                moving_count++;
+                List<float> joint_data_read = new List<float>
                 {
-                    joint_data_read[i] = float.Parse(Data[i]);
-                    //print($"{i}, {operator_data_new[i]}");
-                }
+                    float.Parse(Data[0]),
+                    float.Parse(Data[1]),
+                    float.Parse(Data[2]),
+                    float.Parse(Data[3]),
+                    float.Parse(Data[4]),
+                    float.Parse(Data[5])
+                };
+
                 joint1.SetJointPositions(joint_data_read);
+                print($"Moved {moving_count} times");
+                Task.Delay(100);
+
             }
         }
 

@@ -1,4 +1,4 @@
-﻿// This code contains 3D SYSTEMS Confidential Information and is disclosed to you
+// This code contains 3D SYSTEMS Confidential Information and is disclosed to you
 // under a form of 3D SYSTEMS software license agreement provided separately to you.
 //
 // Notice
@@ -51,6 +51,9 @@ public class Initialization_Haptic : MonoBehaviour
     public List<float> operator_data_new = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     public bool ReadDone;
 
+    public float coord_offset;
+    public float tool_offset;
+
     public Transform HapticTransform;
 
     private void Start()
@@ -58,6 +61,8 @@ public class Initialization_Haptic : MonoBehaviour
         // Operator Settings
         recording_operator = 0;
         count = 0;
+        tool_offset = 0.164f;
+        coord_offset = -1.0f;
 
         //TextMeshPro TMesh = DeviceInfo.GetComponent<TextMeshPro>();
         //TMesh.text = HPlugin.DeviceIdentifier + "\n" + HPlugin.ModelType + "\n" + HPlugin.SerialNumber + "\n" + HPlugin.MaxForce.ToString("F") + " N";
@@ -154,15 +159,15 @@ public class Initialization_Haptic : MonoBehaviour
         Quaternion rotation = HapticTransform.rotation;
         Vector3 force = HPlugin.CurrentForce;
         float force_mag = HPlugin.MagForce;
-        // print($"Haptic POS, ORI: {position}, {rotation}, {force}, {force_mag}");
+        //print($"Haptic POS, ORI: {position}, {rotation}, {force}, {force_mag}");
         operator_data = new List<float>
         {
-            (float)position.x,
-            (float)position.y,
-            (float)position.z,
+            (float)position.x * 1000 - 4000,
+            (float)position.y * 1000 + tool_offset,
+            (float)position.z * 1000 + 400,
             (float)rotation.x,
             (float)rotation.y,
-            (float)rotation.z,
+            (float)rotation.z * coord_offset,
             (float)force.x,
             (float)force.y,
             (float)force.z,

@@ -7,6 +7,7 @@ using RosSharp.RosBridgeClient.MessageTypes.CollisionTestM1509;
 using System.IO;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -18,8 +19,11 @@ namespace RosSharp.RosBridgeClient
         string filename_sol = "";
         string input_filename_opt = "";
         public double[] operator_data_read = new double[6];
-        public List<float> joint_data = new List<float> { 0, 0, 0, 0, 0, 0 };
+        public double[] joint_data = new double[6];
         public bool ReadDone;
+        public int get_response;
+        public int count;
+        public bool isServiceCompleted;
 
         void Start()
         {
@@ -27,12 +31,17 @@ namespace RosSharp.RosBridgeClient
 
             filename_sol = Application.dataPath + $"/Scripts/Solution/joint_solution.csv";
             TextWriter tw = new StreamWriter(filename_sol, false);
-            tw.WriteLine("X, Y, Z, ORI.x, ORI.y, ORI.z, ORI.w");
+            tw.WriteLine("J1, J2, J3, J4, J5, J6");
+            // Starting Joints
+            tw.WriteLine("-0.0001011, -0.0009295, 1.5705487, 0.0005570, 1.5708914, -0.0002538");
+            //Haptic Starting Joints
+            tw.WriteLine("-0.0001011, -0.0009295, 1.5705487, 0.0005570, 1.5708914, -0.0002538");
             tw.Close();
+            count = 0;
 
         }
 
-        public void getRobotSolution()
+        public void getrobotsolution()
         {
             ReadDone = false;
             input_filename_opt = Application.dataPath + $"/Scripts/Optimal Trajectory/operator_trajectory_final.csv";
@@ -57,15 +66,17 @@ namespace RosSharp.RosBridgeClient
                 }
                 sbyte solSpace = 1;
                 sbyte refVal = 0;
-                print($"{operator_data_read[0]},{operator_data_read[1]},{operator_data_read[2]},{operator_data_read[3]},{operator_data_read[4]},{operator_data_read[5]}");
-
+                //print($"{operator_data_read[0]},{operator_data_read[1]},{operator_data_read[2]},{operator_data_read[3]},{operator_data_read[4]},{operator_data_read[5]}");
+                //print("Send Service");
+                count++;
+                get_response = 1;
                 CallIkinService(operator_data_read, solSpace, refVal);
             }
         }
 
-
-        public void CallIkinService(double[] pos, sbyte sol_space, sbyte @ref)
+        public IEnumerator CallIkinService(double[] pos, sbyte sol_space, sbyte @ref)
         {
+            isServiceCompleted = false;
             IkinRequest request = new IkinRequest
             {
                 pos = pos,
@@ -73,12 +84,17 @@ namespace RosSharp.RosBridgeClient
                 @ref = @ref
             };
 
-            // Debug.Log("Request Pos: " + string.Join(", ", pos));
+            Debug.Log("Request Pos: " + string.Join(", ", pos));
             // Debug.Log("Sol Space: " + sol_space);
             // Debug.Log("Ref Val: " + @ref);
 
             RosConnector.RosSocket.CallService<IkinRequest, IkinResponse>(
                 ikin, ServiceRequestHandler, request);
+
+            while (!isServiceCompleted)
+            {
+                yield return null;
+            }
         }
 
         private void ServiceRequestHandler(IkinResponse response)
@@ -87,20 +103,23 @@ namespace RosSharp.RosBridgeClient
             if (response.success)
             {
                 Debug.Log("Received joint positions: " + string.Join(", ", response.conv_posj));
-                //joints = response;
+                
                 StreamWriter tw;
                 tw = File.AppendText(filename_sol);
                 for (int i = 0; i < 6; i++)
                 {
-                    //print($"See operator data, {i}, {operator_data[i]}");
+                    joint_data[i] = response.conv_posj[i];
+                    //print($"See joint data, {i}, {joint_data[i]}");
                     tw.Write(joint_data[i]);
                     tw.Write(",");
                 }
                 tw.WriteLine();
                 tw.Close();
+                isServiceCompleted = true;
             }
             else
             {
+                isServiceCompleted = true;
                 Debug.LogError("Failed to get joint position. Response details: " + FormatResponse(response));
             }
         }

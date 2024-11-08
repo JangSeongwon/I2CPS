@@ -5,7 +5,7 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -42,6 +42,8 @@ namespace RosSharp.RosBridgeClient
         public int moving_count;
         public double[] read_operator_data = new double[6];
 
+        public int robot_running;
+
         // Start is called before the first frame update
         protected void Start()
         {
@@ -53,7 +55,8 @@ namespace RosSharp.RosBridgeClient
             jointPositions = new List<float> { 0.0f, -0.00045378606f, 1.569958569f, 0.000383972435f, 1.570886f, 0.0f };
             Home.SetJointPositions(jointPositions);
             //2. Robot Moving Settings
-            moving_count = 0;
+            moving_count = 1;
+            robot_running = 0;
 
             // 3. Show the Manual
 
@@ -66,6 +69,51 @@ namespace RosSharp.RosBridgeClient
             // Receive joint values for every 0.01s from ROS#
             JointValueSubscriber = (RosSharp.RosBridgeClient.JointValueSubscriber)this.GetComponentInParent(typeof(RosSharp.RosBridgeClient.JointValueSubscriber));
             // StartCoroutine(MoveRobot());
+
+            if (robot_running == 1)
+            {
+                input_filename_execute = Application.dataPath + $"/Scripts/Solution/joint_solution.csv";
+                StreamReader reader = new StreamReader(input_filename_execute);
+
+                //print($"{Data[0]},{Data[1]},{Data[2]},{Data[3]},{Data[4]},{Data[5]}");
+                for (int i = 0; i < moving_count; i ++)
+                {
+                    string ReadData_skip = reader.ReadLine();
+                    //print(moving_count);
+                    //print(ReadData_skip);
+
+                }
+                string ReadData = reader.ReadLine();
+                if (ReadData == null)
+                {
+                    robot_running = 0;
+                    moving_count = 1;
+                }
+                if (robot_running == 1)
+                {
+                    moving_count++;
+                    //print(ReadData);
+                    string[] Data = ReadData.Split(',');
+                    List<float> joint_data_read = new List<float>
+                    {
+                        //float.Parse(Data[0]),
+                        //float.Parse(Data[1]),
+                        //float.Parse(Data[2]),
+                        //float.Parse(Data[3]),
+                        //float.Parse(Data[4]),
+                        //float.Parse(Data[5])
+                        float.Parse(Data[0]) / 180 * Mathf.PI,
+                        float.Parse(Data[1]) / 180 * Mathf.PI,
+                        float.Parse(Data[2]) / 180 * Mathf.PI,
+                        float.Parse(Data[3]) / 180 * Mathf.PI,
+                        float.Parse(Data[4]) / 180 * Mathf.PI,
+                        float.Parse(Data[5]) / 180 * Mathf.PI
+                    };
+
+                    joint1.SetJointPositions(joint_data_read);
+                    //print($"Moved {moving_count} {joint_data_read[0]} times");
+                }
+            }
 
         }
 
@@ -145,7 +193,7 @@ namespace RosSharp.RosBridgeClient
             {
                 ReadDonecheck = false;
                 //print($"Record Num: {record_num}");
-                combining_filename_tuned = Application.dataPath + $"/Scripts/operator_trajectory_tuning_{record_num}.csv";
+                combining_filename_tuned = Application.dataPath + $"/Scripts/operator_trajectory_{record_num}.csv";
                 try
                 {
                     StreamReader reader = new StreamReader(combining_filename_tuned);
@@ -192,41 +240,8 @@ namespace RosSharp.RosBridgeClient
 
         public void executeRobot()
         {
-            ReadDone = false;
-            input_filename_execute = Application.dataPath + $"/Scripts/Solution/joint_solution_checking.csv";
-            StreamReader reader = new StreamReader(input_filename_execute);
-
-            while (ReadDone == false)
-            {
-                string ReadData = reader.ReadLine();
-                print(ReadData);
-                if (ReadData == null)
-                {
-                    ReadDone = true;
-                    break;
-                }
-                string[] Data = ReadData.Split(',');
-                print($"{Data[0]},{Data[1]},{Data[2]},{Data[3]},{Data[4]},{Data[5]}");
-                if (Data[0] == "J1")
-                {
-                    continue;
-                }
-                moving_count++;
-                List<float> joint_data_read = new List<float>
-                {
-                    float.Parse(Data[0]),
-                    float.Parse(Data[1]),
-                    float.Parse(Data[2]),
-                    float.Parse(Data[3]),
-                    float.Parse(Data[4]),
-                    float.Parse(Data[5])
-                };
-
-                joint1.SetJointPositions(joint_data_read);
-                print($"Moved {moving_count} times");
-                Task.Delay(100);
-
-            }
+            
+            robot_running = 1;
         }
 
             //public void record_operator_data()

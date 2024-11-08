@@ -22,10 +22,7 @@ namespace RosSharp.RosBridgeClient
         public double[] joint_data = new double[6];
         public bool ReadDone;
         public DateTime time_start;
-        public DateTime time_start_as;
         public DateTime time_end;
-        public int count;
-        public int count_as;
 
         void Start()
         {
@@ -33,18 +30,23 @@ namespace RosSharp.RosBridgeClient
 
             filename_sol = Application.dataPath + $"/Scripts/Solution/joint_solution.csv";
             TextWriter tw = new StreamWriter(filename_sol, false);
-            tw.WriteLine("J1, J2, J3, J4, J5, J6");
+            tw.WriteLine("J1, J2, J3, J4, J5, J6, time");
             // Starting Joints
-            tw.WriteLine("-0.0001011, -0.0009295, 1.5705487, 0.0005570, 1.5708914, -0.0002538");
+            tw.WriteLine("-0.0001011, -0.0009295, 1.5705487, 0.0005570, 1.5708914, -0.0002538, 0");
             //Haptic Starting Joints
-            tw.WriteLine("-0.0001011, -0.0009295, 1.5705487, 0.0005570, 1.5708914, -0.0002538");
+            tw.WriteLine("-0.0001011, -0.0009295, 1.5705487, 0.0005570, 1.5708914, -0.0002538, 0");
+            //POS 1,2
+            tw.WriteLine("0.184, 0.5657, 1.52, -0.989, 1.44, 0.531");
+            tw.WriteLine("-0.411, 0.477, 1.457, 1.03, 1.768, -0.503");
             tw.Close();
-            count = 0;
+            
 
         }
 
         public void getrobotsolution()
         {
+            // time_start = DateTime.Now;
+            // print($"Starting time {time_start.ToString("ss.ffffff")}");
             ReadDone = false;
             input_filename_opt = Application.dataPath + $"/Scripts/Optimal Trajectory/operator_trajectory_final.csv";
             StreamReader reader = new StreamReader(input_filename_opt);
@@ -61,8 +63,6 @@ namespace RosSharp.RosBridgeClient
                 {
                     continue;
                 }
-
-                count++;
                 for (int i = 0; i < 6; i++)
                 {
                     operator_data_read[i] = double.Parse(Data[i]);
@@ -71,13 +71,12 @@ namespace RosSharp.RosBridgeClient
                 sbyte refVal = 0;
                 //print($"{operator_data_read[0]},{operator_data_read[1]},{operator_data_read[2]},{operator_data_read[3]},{operator_data_read[4]},{operator_data_read[5]}");
                 //print("Send Service");
-                time_start = DateTime.Now;
-                print($"Service Calling time at {count}: {time_start}");
-                StartCoroutine(CallIkinService(operator_data_read, solSpace, refVal, count, time_start));
+                
+                StartCoroutine(CallIkinService(operator_data_read, solSpace, refVal));
             }
         }
 
-        public IEnumerator CallIkinService(double[] pos, sbyte sol_space, sbyte @ref, int count, DateTime timestart)
+        public IEnumerator CallIkinService(double[] pos, sbyte sol_space, sbyte @ref)
         {
             bool isServiceCompleted = false;
             IkinRequest request = new IkinRequest
@@ -90,12 +89,11 @@ namespace RosSharp.RosBridgeClient
             // Debug.Log("Request Pos: " + string.Join(", ", pos));
             // Debug.Log("Sol Space: " + sol_space);
             // Debug.Log("Ref Val: " + @ref);
-            count_as = count;
-            time_start_as = timestart;
+
             RosConnector.RosSocket.CallService<IkinRequest, IkinResponse>(
                 ikin, (response) =>
                 {
-                    // Debug.Log("Received joint positions: " + string.Join(", ", response.conv_posj));
+                    //Debug.Log("Received joint positions: " + string.Join(", ", response.conv_posj));
 
                     StreamWriter tw;
                     tw = File.AppendText(filename_sol);
@@ -106,12 +104,13 @@ namespace RosSharp.RosBridgeClient
                         tw.Write(joint_data[i]);
                         tw.Write(",");
                     }
+                    time_end = DateTime.Now;
+                    // print($"Service Returning & Recording at time end: {time_end}, spent {time_end - time_start}");
+                    tw.Write(time_end.ToString("ss.ffffff"));
+                    tw.Write(",");
                     tw.WriteLine();
                     tw.Close();
-                    isServiceCompleted = true;
-                    time_end = DateTime.Now;
-                    print(time_end);
-                    print($"Service Returning & Recording time at {count_as}, time end: {time_end}, spent {time_end-time_start_as}");
+                    isServiceCompleted = true;       
                 }, request);
             yield return isServiceCompleted;
         }

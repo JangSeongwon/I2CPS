@@ -51,8 +51,9 @@ public class Initialization_Haptic : MonoBehaviour
     public List<float> operator_data_new = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     public bool ReadDone;
 
-    public float coord_offset;
+    public float coord_sync;
     public float tool_offset;
+    public float offset;
 
     public Transform HapticTransform;
 
@@ -61,8 +62,9 @@ public class Initialization_Haptic : MonoBehaviour
         // Operator Settings
         recording_operator = 0;
         count = 0;
-        tool_offset = 0.164f;
-        coord_offset = -1.0f;
+        tool_offset = 164.0f;
+        coord_sync = -1.0f;
+        offset = 0.0f;
 
         //TextMeshPro TMesh = DeviceInfo.GetComponent<TextMeshPro>();
         //TMesh.text = HPlugin.DeviceIdentifier + "\n" + HPlugin.ModelType + "\n" + HPlugin.SerialNumber + "\n" + HPlugin.MaxForce.ToString("F") + " N";
@@ -88,16 +90,14 @@ public class Initialization_Haptic : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.T))
             {
-                if (!HPlugin.isNavTranslation())
+                if (HPlugin.isNavRotation())
                 {
-                    HPlugin.EnableNavTranslation();
                     HPlugin.DisableNavRotation();
-                    print("Rotation->Translation");
+                    print("Translation only");
                 }
                 else
                 {
-                    HPlugin.DisableNavTranslation();
-                    print("No Translation");
+                    HPlugin.EnableNavRotation();
                 }
             }
             if (Input.GetKeyDown(KeyCode.R))
@@ -120,17 +120,13 @@ public class Initialization_Haptic : MonoBehaviour
             {
                 HPlugin.DisableVibration();
             }
-            if (Input.GetKey("escape"))
-            {
-                Application.Quit();
-            }
         }
     }
 
     public void recording_start()
     {
         count++;
-        print($"Recording Operator's Trajectory {count}");
+        print($"Recording Operator's Trajectory. Record Number: {count}");
         filename = Application.dataPath + $"/Scripts/operator_trajectory_{count}.csv";
         Operator_data();
         recording_operator = 1;
@@ -138,11 +134,40 @@ public class Initialization_Haptic : MonoBehaviour
     public void recording_end()
     {
         recording_operator = 0;
-        print("End of Recording. Start Tuning");
         Trajectory_Tuning();
         operator_data_saved = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         operator_data_new = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        print($"Finished Tuning: {count}");
+        print($"Finished Tuning Record number: {count}");
+    }
+
+    public void recording_delete()
+    {
+        filename = Application.dataPath + $"/Scripts/operator_trajectory_{count}.csv";
+        filename_tuning = Application.dataPath + $"/Scripts/operator_trajectory_tuning_{count}.csv";
+        if (System.IO.File.Exists(filename))
+        {
+            try
+            {
+                System.IO.File.Delete(filename);
+            }
+            catch (System.IO.IOException e)
+            {
+                print("Error occured. Try Again");
+            }
+        }
+        if (System.IO.File.Exists(filename_tuning))
+        {
+            try
+            {
+                System.IO.File.Delete(filename_tuning);
+                count--;
+            }
+            catch (System.IO.IOException e)
+            {
+                print("Error occured. Try Again");
+            }
+        }
+
     }
 
     public void Operator_data()
@@ -160,20 +185,38 @@ public class Initialization_Haptic : MonoBehaviour
         Vector3 force = HPlugin.CurrentForce;
         float force_mag = HPlugin.MagForce;
         //print($"Haptic POS, ORI: {position}, {rotation}, {force}, {force_mag}");
-        operator_data = new List<float>
+
+        rotation = new Quaternion { w = -rotation.w, x = rotation.z, y = -rotation.x, z = rotation.y};
+        //print($"See Quaternion {rotation.w}, {rotation.x}, {rotation.y}, {rotation.z}");
+        var (ori_x, ori_y, ori_z) = QuaternionToEulerZYZ(rotation);
+        ori_x = ori_x * 180 / Mathf.PI;
+        ori_y = ori_y * 180 / Mathf.PI;
+        ori_z = ori_z * 180 / Mathf.PI;
+        ori_z = 180 - ori_z;
+        ori_x = 180 - ori_x;
+        ori_y += 90;
+
+        if (ori_y > 180)
         {
-            (float)position.x * 1000 - 4000,
-            (float)position.y * 1000 + tool_offset,
-            (float)position.z * 1000 + 400,
-            (float)rotation.x,
-            (float)rotation.y,
-            (float)rotation.z * coord_offset,
-            (float)force.x,
-            (float)force.y,
-            (float)force.z,
-            force_mag,
-            time
-        };
+            ori_y = ori_y - 360;
+        }
+        //print($"See ZYZ Euler {ori_x}, {ori_y}, {ori_z}");
+
+        print(position);
+        operator_data = new List<float>
+    {
+        (float)position.z * 1000 + 400 + 130,
+        ((float)position.x * 1000 - 4000)*(coord_sync),
+        (float)position.y * 1000 + tool_offset + offset,
+        ori_x,
+        ori_y,
+        ori_z,
+        (float)force.x,
+        (float)force.y,
+        (float)force.z,
+        force_mag,
+        time
+    };
 
         StreamWriter tw;
         tw = File.AppendText(filename);
@@ -186,6 +229,28 @@ public class Initialization_Haptic : MonoBehaviour
         tw.WriteLine();
         tw.Close();
         // print($"See operator data, {operator_data[0]}, {operator_data[1]}, {operator_data[2]}, {operator_data[3]}, {operator_data[4]}, {operator_data[5]}, {operator_data[6]}");
+    }
+
+    public static (float, float, float) QuaternionToEulerZYZ(Quaternion rotation)
+    {
+        float qw = rotation.w;
+        float qx = rotation.x;
+        float qy = rotation.y;
+        float qz = rotation.z;
+
+        //float ori_x = (float)Math.Atan2(qz, qw) - (float)Math.Atan2(-qx, qy);
+        //float ori_y = (float)Math.Acos(2.0f * (qw * qw + qz * qz) - 1);
+        //float ori_z = (float)Math.Atan2(qz, qw) + (float)Math.Atan2(-qx, qy);
+
+        float ori_x = Mathf.Atan2(2 * qy * qz + 2 * qw * qx, qz * qz - qy * qy - qx * qx + qw * qw);
+        float ori_y = -Mathf.Asin(2 * qw * qy - 2 * qx * qz);
+        float ori_z = Mathf.Atan2(2 * qx * qy + 2 * qw * qz, qx * qx + qw * qw - qz * qz - qy * qy);
+
+        //float ori_x = Mathf.Atan2(2 * qy * qz - 2 * qw * qx, 2 * qw * qy + 2 * qx * qz);
+        //float ori_y = Mathf.Atan2((float)Math.Sqrt((2 * qy * qz - 2 * qw * qx) * (2 * qy * qz - 2 * qw * qx) + (2 * qw * qy + 2 * qx * qz) * (2 * qw * qy + 2 * qx * qz)), qw * qw - qx * qx - qy * qy + qz * qz);
+        //float ori_z = Mathf.Atan2(2 * qw * qx + 2 * qy * qz, -2 * qx * qz + 2 * qw * qy);
+
+        return (ori_x, ori_y, ori_z);
     }
 
     public void Trajectory_Tuning()
@@ -225,14 +290,14 @@ public class Initialization_Haptic : MonoBehaviour
             double orientational_threshold = Math.Sqrt(Math.Pow(operator_data_saved[3] - operator_data_new[3], 2) + Math.Pow(operator_data_saved[4] - operator_data_new[4], 2) + Math.Pow(operator_data_saved[5] - operator_data_new[5], 2));
             double force_threshold = Math.Sqrt(Math.Pow(operator_data_saved[6] - operator_data_new[6], 2) + Math.Pow(operator_data_saved[7] - operator_data_new[7], 2) + Math.Pow(operator_data_saved[8] - operator_data_new[8], 2));
 
-            if ((distance_threshold < 0.001 && force_threshold < 0.0001) || (orientational_threshold < 0.001 && force_threshold < 0.0001))
+            if ((distance_threshold < 0.0001 && force_threshold < 0.0001) || (orientational_threshold < 0.0001 && force_threshold < 0.0001))
             {
                 continue;
             }
 
             // print($" {operator_data_saved[0]}, {operator_data_new[0]}, {Math.Pow(operator_data_saved[0] - operator_data_new[0], 2)}");
-            //print($"Threshold values, {distance_threshold}, {orientational_threshold}, {force_threshold}");
-            if ((distance_threshold > 0.001) || (orientational_threshold > 0.001) || (force_threshold > 0.0001))
+            // print($"Threshold values, {distance_threshold}, {orientational_threshold}, {force_threshold}");
+            if ((distance_threshold > 0.0001) || (orientational_threshold > 0.0001) || (force_threshold > 0.0001))
             {
                 //print($"Distance Threshold, {distance_threshold}");
                 //print($"Orientation Threshold, {orientational_threshold}");
@@ -262,3 +327,4 @@ public class Initialization_Haptic : MonoBehaviour
 
 
 }
+

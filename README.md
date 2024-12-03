@@ -18,11 +18,6 @@ ROS topic: /robotiq_ft_sensor
 Subscriber: ForceFeedbackSubscriber
 Feedback to Haptic: [HapticPlugin.setForce(deviceName, lateral3, torque3);]
 ```
-```
-C#
-Array: double[] x = new double[size];
-List: List<double> x = new List<double> {0,0};
-```
 
 2. Doosan Robot in Unity
 ```
@@ -83,8 +78,6 @@ O = (0,0,0)
 Data Communication Speed settings:
 https://answers.ros.org/question/332192/difference-between-rospyspin-and-rospysleep/
 
-Current Error: callback OnLogAlarm. Level.2 1209에러: 입력된 목표 속도 (TASK)가 사용자 LIMIT을 벗어날을 때 나는 에러
-
 Python코드 : chmod +x [file명]
 
 ```
@@ -95,12 +88,6 @@ Receiving speed : MAX 33 Hz
 
 --------------------------
 
-Voxel system in Unity
-```
-Unit: Struct Voxel
-
-
-```
 
 
 --------------------------

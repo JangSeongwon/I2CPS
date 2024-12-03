@@ -34,24 +34,28 @@ using System.IO;
 using System;
 using System.Linq;
 using RosSharp.RosBridgeClient;
+using Unity.VisualScripting;
 
 public class Initialization_Haptic : MonoBehaviour
 {
     public HapticPlugin HPlugin = null;
     public GameObject DeviceInfo;
     public GameObject Device1;
-    public string deviceName;
 
     private List<float> operator_data;
+    private List<float> force_data;
     public int count;
     public int recording_operator;
     string filename = "";
+    string filename_force_data = "";
     string filename_tuning = "";
     public List<float> operator_data_saved = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     public List<float> operator_data_new = new List<float> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     public bool ReadDone;
 
     public float coord_sync;
+    public float coord_offset_z;
+    public float coord_offset_x;
     public float tool_offset;
     public float offset;
 
@@ -62,9 +66,11 @@ public class Initialization_Haptic : MonoBehaviour
         // Operator Settings
         recording_operator = 0;
         count = 0;
+        coord_offset_z = 530.0f; // 400 Haptic, 130 Robot
+        coord_offset_x = 4000.0f;
         tool_offset = 164.0f;
         coord_sync = -1.0f;
-        offset = 0.0f;
+        offset = 205.0f;
 
         //TextMeshPro TMesh = DeviceInfo.GetComponent<TextMeshPro>();
         //TMesh.text = HPlugin.DeviceIdentifier + "\n" + HPlugin.ModelType + "\n" + HPlugin.SerialNumber + "\n" + HPlugin.MaxForce.ToString("F") + " N";
@@ -72,6 +78,10 @@ public class Initialization_Haptic : MonoBehaviour
         Device1.GetComponent<VirtualHaptic>().ShowGizmo = true;
         Device1.GetComponent<VirtualHaptic>().ShowLabels = true;
 
+        filename_force_data = Application.dataPath + $"/Voxel_space/Data/Haptic_force_data.csv";
+        TextWriter tw = new StreamWriter(filename_force_data, false);
+        tw.WriteLine("Fx, Fy, Fz, F.Mag");
+        tw.Close();
     }
 
 
@@ -83,6 +93,9 @@ public class Initialization_Haptic : MonoBehaviour
         {
             record_operator_data();
         }
+
+        record_force_data();
+
     }
     private void UpdateKeys()
     {
@@ -177,6 +190,28 @@ public class Initialization_Haptic : MonoBehaviour
         tw.Close();
     }
 
+    public void record_force_data()
+    {
+        Vector3 force = HPlugin.CurrentForce;
+        float force_mag = HPlugin.MagForce;
+        StreamWriter tw;
+        tw = File.AppendText(filename_force_data);
+        force_data = new List<float>
+        {
+            (float)force.x,
+            (float)force.y,
+            (float)force.z,
+            force_mag
+        };
+        for (int i = 0; i < 4; i++)
+        {
+            tw.Write(force_data[i]);
+            tw.Write(",");
+        }
+        tw.WriteLine();
+        tw.Close();
+    }
+
     public void record_operator_data()
     {
         float time = (DateTime.Now.Millisecond);
@@ -202,12 +237,12 @@ public class Initialization_Haptic : MonoBehaviour
         }
         //print($"See ZYZ Euler {ori_x}, {ori_y}, {ori_z}");
 
-        print(position);
+        //print(position);
         operator_data = new List<float>
     {
-        (float)position.z * 1000 + 400 + 130,
-        ((float)position.x * 1000 - 4000)*(coord_sync),
-        (float)position.y * 1000 + tool_offset + offset,
+        (float)position.z * 1000 + coord_offset_z,
+        ((float)position.x * 1000 - coord_offset_x)*(coord_sync),
+        (float)position.y * 1000 - tool_offset + offset,
         ori_x,
         ori_y,
         ori_z,
@@ -290,7 +325,8 @@ public class Initialization_Haptic : MonoBehaviour
             double orientational_threshold = Math.Sqrt(Math.Pow(operator_data_saved[3] - operator_data_new[3], 2) + Math.Pow(operator_data_saved[4] - operator_data_new[4], 2) + Math.Pow(operator_data_saved[5] - operator_data_new[5], 2));
             double force_threshold = Math.Sqrt(Math.Pow(operator_data_saved[6] - operator_data_new[6], 2) + Math.Pow(operator_data_saved[7] - operator_data_new[7], 2) + Math.Pow(operator_data_saved[8] - operator_data_new[8], 2));
 
-            if ((distance_threshold < 0.0001 && force_threshold < 0.0001) || (orientational_threshold < 0.0001 && force_threshold < 0.0001))
+            // Folloiwng 50Hz from Haptic
+            if (distance_threshold == 0.0 || force_threshold == 0.0 || orientational_threshold == 0.0)
             {
                 continue;
             }
@@ -314,11 +350,11 @@ public class Initialization_Haptic : MonoBehaviour
                 tww.Close();
                 operator_data_saved = operator_data_new.ToList();
             }
-            else
-            {
-                operator_data_saved = operator_data_saved;
-                print(operator_data_saved[0]);
-            }
+            //else
+            //{
+            //    operator_data_saved = operator_data_saved;
+            //    // print(operator_data_saved[0]);
+            //}
             // print($"Saved,{operator_data_saved[0]}, {operator_data_saved[1]}, {operator_data_saved[2]}, {operator_data_saved[3]}, {operator_data_saved[4]}, {operator_data_saved[5]}");
 
         }

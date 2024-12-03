@@ -81,13 +81,6 @@ https://answers.ros.org/question/332192/difference-between-rospyspin-and-rospysl
 Python코드 : chmod +x [file명]
 
 ```
-3. Operator Data
-```
-Receiving speed : MAX 33 Hz 
-```
-
---------------------------
-
 
 
 --------------------------

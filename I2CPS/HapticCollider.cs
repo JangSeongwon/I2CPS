@@ -27,20 +27,22 @@
 
 
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 using HapticGUI;
+using RosSharp.RosBridgeClient;
+
 //using StackableDecorator;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-
-
 class HapticCollider : MonoBehaviour
 {
-    private HapticPlugin HPlugin = null;
+    public HapticPlugin HPlugin = null;
     //public GrabberControl GControl = null;
 
     private int NumHitsDampingMax = 3;
@@ -62,12 +64,28 @@ class HapticCollider : MonoBehaviour
     private Collider Collider_mesh;
     public Material CollisionMaterial;
 
+    public World world;
+    public Initialization_Voxel voxel_world;
+    public Chunk2 chunk2;
+    public Transform Hapticposition;
+
+    public string deviceName;
+    public int switched;
+    public double[] usable6;
+    public double[] max6;
+
+    public Vector3 contactpoint;
+
     void Start()
     {
+        //world = GameObject.Find("Voxel").GetComponent<World>();
+        //chunk2 = GameObject.Find("Voxel2").GetComponent<Chunk2>();
+        //voxel_world = GameObject.Find("Voxel Initializer").GetComponent<Initialization_Voxel>();
+
         if (HPlugin == null)
         {
 
-            HapticPlugin[] HPs = (HapticPlugin[])Object.FindObjectsOfType(typeof(HapticPlugin));
+            HapticPlugin[] HPs = (HapticPlugin[])UnityEngine.Object.FindObjectsOfType(typeof(HapticPlugin));
             foreach (HapticPlugin HP in HPs)
             {
                 if (HP.CollisionMesh == this.gameObject)
@@ -80,10 +98,33 @@ class HapticCollider : MonoBehaviour
         Renderer_mesh = transform.Find("HapticEnd").GetComponent<MeshRenderer>();
         Collider_mesh = transform.Find("HapticEnd").GetComponent<Collider>();
 
+        //HapticPlugin.getWorkspaceArea(deviceName, usable6, max6);
+
     }
 
- 
+    void Update()
+    {
+        //double magnitude = 1 / 7.9;
+        //double[] direction3 = new double[] { 0, 0, 1 };
+        //HapticPlugin.setConstantForceValues(deviceName, direction3, magnitude);
 
+        //double[] lateral3 = new double[] { 0, 0, 1 };
+        //double[] torque3 = new double[] { 0, 0, 1, 0, 0, 0 };
+        //HapticPlugin.setForce(deviceName, lateral3, torque3);
+
+        double[] seeforce = new double[] { 0, 0, 0 };
+        HapticPlugin.getCurrentForce(deviceName, seeforce);
+        //print($"{seeforce[0]}, {seeforce[1]}, {seeforce[2]}");
+        double operatorforce = Math.Sqrt(seeforce[0] * seeforce[0]+ seeforce[1] * seeforce[1] + seeforce[2] * seeforce[2]);
+
+
+        if ( operatorforce > 0.3 )
+        {
+            print(contactpoint);
+            chunk2.EditVoxel(contactpoint, 0);
+        }
+
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -91,11 +132,19 @@ class HapticCollider : MonoBehaviour
         {
             if (HPlugin != null)
             {
+                //Debug.Log("update collision");
                 HPlugin.UpdateCollision(collision, true, false, false);
-                //GControl.GrabberCollision(collision, gameObject);
+                // GControl.GrabberCollision(collision, gameObject);
                 HPlugin.enable_damping = true;
             }
         }
+        print($"Contacted {collision.gameObject.name}");
+
+        
+        //world.GetChunkFromVector3(contactpoint).EditVoxel(contactpoint, false);
+        //voxel_world.EditVoxel(contactpoint, 0);
+        //chunk2.EditVoxel(contactpoint, 0);
+
 
     }
 
@@ -114,12 +163,13 @@ class HapticCollider : MonoBehaviour
                     NumHitsDamping++;
                 }
 
-                HPlugin.UpdateCollision(collision, false, true, false);
+               HPlugin.UpdateCollision(collision, false, true, false);
 
             }
         }
         foreach (ContactPoint contact in collision.contacts)
         {
+            contactpoint = collision.contacts[0].point;
             if (contact.thisCollider == Collider_mesh)
             {
                 Renderer_mesh.material = CollisionMaterial;
@@ -140,7 +190,7 @@ class HapticCollider : MonoBehaviour
         Renderer_mesh.material = DefaultMaterial;
     }
 
-    
+
 
 
 }

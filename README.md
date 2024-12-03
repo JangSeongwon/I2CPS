@@ -9,7 +9,8 @@ Use Assets: https://assetstore.unity.com/packages/tools/integration/haptics-dire
 ```
 1. Actor : [HapticPlugin]
 2. Collider : [HapticCollider]
-3. Haptic Initializer : [SceneControl]
+3. Haptic Initializer : [Initialization_Haptic]
+4. Voxel Initializer : [Initialization_Voxel]
 ```
 ```
 2. 6F/T Sensor

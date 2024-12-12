@@ -34,6 +34,8 @@ using UnityEngine;
 
 using HapticGUI;
 using RosSharp.RosBridgeClient;
+using System.Threading;
+
 
 //using StackableDecorator;
 #if UNITY_EDITOR
@@ -64,13 +66,13 @@ class HapticCollider : MonoBehaviour
     private Collider Collider_mesh;
     public Material CollisionMaterial;
 
-    public World world;
     public Initialization_Voxel voxel_world;
     public Chunk2 chunk2;
     public Transform Hapticposition;
 
     public string deviceName;
     public int switched;
+    public int countnum;
     public double[] usable6;
     public double[] max6;
 
@@ -96,15 +98,15 @@ class HapticCollider : MonoBehaviour
 
         }
         Renderer_mesh = transform.Find("HapticEnd").GetComponent<MeshRenderer>();
-        Collider_mesh = transform.Find("HapticEnd").GetComponent<Collider>();
-
+        Collider_mesh = transform.Find("HapticEnd").GetComponent<CapsuleCollider>();
+        
         //HapticPlugin.getWorkspaceArea(deviceName, usable6, max6);
 
     }
 
     void Update()
     {
-        //double magnitude = 1 / 7.9;
+        //double magnitude = 1 / 79.0;
         //double[] direction3 = new double[] { 0, 0, 1 };
         //HapticPlugin.setConstantForceValues(deviceName, direction3, magnitude);
 
@@ -118,13 +120,14 @@ class HapticCollider : MonoBehaviour
         double operatorforce = Math.Sqrt(seeforce[0] * seeforce[0]+ seeforce[1] * seeforce[1] + seeforce[2] * seeforce[2]);
 
 
-        if ( operatorforce > 0.3 )
+        if ( operatorforce > 0.1 )
         {
-            print(contactpoint);
+            //print(contactpoint);
             chunk2.EditVoxel(contactpoint, 0);
         }
 
     }
+
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -167,9 +170,14 @@ class HapticCollider : MonoBehaviour
 
             }
         }
+        //countnum = 0;
         foreach (ContactPoint contact in collision.contacts)
         {
+            //countnum++;
+            //print(countnum);
             contactpoint = collision.contacts[0].point;
+            print(collision.contactCount);
+            //print(collision.contacts);
             if (contact.thisCollider == Collider_mesh)
             {
                 Renderer_mesh.material = CollisionMaterial;
@@ -188,6 +196,7 @@ class HapticCollider : MonoBehaviour
             }
         }
         Renderer_mesh.material = DefaultMaterial;
+        //chunk2.EditVoxel(contactpoint, 0);
     }
 
 

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,8 +12,9 @@ public static class VoxelData2
 
     }
 
-    public static readonly int ChunkWidth = 20;
-    public static readonly int ChunkHeight = 2;
+    public static readonly int ChunkX = 200;
+    public static readonly int ChunkY = 3;
+    public static readonly int ChunkZ = 3;
 
     public static readonly Vector3[] voxelVerts = new Vector3[8] {
 

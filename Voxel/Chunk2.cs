@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +18,7 @@ public class Chunk2 : MonoBehaviour
     List<int> triangles = new List<int>();
     List<Vector2> uvs = new List<Vector2>();
 
-    public byte[,,] voxelMap = new byte[VoxelData2.ChunkWidth, VoxelData2.ChunkHeight, VoxelData2.ChunkWidth];
+    public byte[,,] voxelMap = new byte[VoxelData2.ChunkX, VoxelData2.ChunkY, VoxelData2.ChunkZ];
     public Material material; 
     public int backFaceTexture;
     public int frontFaceTexture;
@@ -26,6 +26,7 @@ public class Chunk2 : MonoBehaviour
     public int bottomFaceTexture;
     public int leftFaceTexture;
     public int rightFaceTexture;
+    public float surface_area;
 
     void Start()
     {
@@ -33,6 +34,7 @@ public class Chunk2 : MonoBehaviour
         PopulateVoxelMap();
         UpdateChunk();
         CreateMesh();
+        calculate_surface_area();
 
     }
 
@@ -44,6 +46,16 @@ public class Chunk2 : MonoBehaviour
         uvs.Clear();
         
 
+    }
+
+    public void calculate_surface_area()
+    {
+        surface_area = 2 * (VoxelData2.ChunkX * VoxelData2.ChunkY + VoxelData2.ChunkX * VoxelData2.ChunkZ + VoxelData2.ChunkY * VoxelData2.ChunkZ);
+        print($"Surface Area: {surface_area}");
+        if (surface_area >= 16000)
+        {
+            print($"Warning exceeded surface limit");
+        }
     }
 
     void Update()
@@ -61,11 +73,11 @@ public class Chunk2 : MonoBehaviour
     {
         ClearMeshData();
         meshRenderer.material = material;
-        for (int z = 0; z < VoxelData2.ChunkWidth; z++)
+        for (int z = 0; z < VoxelData2.ChunkZ; z++)
         {
-            for (int x = 0; x < VoxelData2.ChunkWidth; x++)
+            for (int x = 0; x < VoxelData2.ChunkX; x++)
             {
-                for (int y = 0; y < VoxelData2.ChunkHeight; y++)
+                for (int y = 0; y < VoxelData2.ChunkY; y++)
                 {
                     if (voxelMap[x,y,z] == 1)
                         AddVoxelDataToChunk(new Vector3(x, y, z));
@@ -79,40 +91,97 @@ public class Chunk2 : MonoBehaviour
     public void EditVoxel(Vector3 pos, byte newID)
     {
 
-        int xCheck = Mathf.FloorToInt((float)System.Math.Truncate((pos.x - 4.0) / 0.005));
-        int yCheck = Mathf.FloorToInt((float)System.Math.Truncate((pos.y - 0.115) / 0.005));
-        int zCheck = Mathf.FloorToInt((float)System.Math.Truncate((pos.z + 0.02) / 0.005));
+        int xCheck = Mathf.FloorToInt((float)System.Math.Truncate((pos.x - 3.9250) / 0.0005));
+        int yCheck = Mathf.FloorToInt((float)System.Math.Truncate((pos.y - 0.1388) / 0.0005));
+        int zCheck = Mathf.FloorToInt((float)System.Math.Truncate((pos.z + 0.0460) / 0.0005));
 
         //print($"{xCheck}, {yCheck}, {zCheck}");
 
+        //Removing 27 Voxels per contact
         voxelMap[xCheck, yCheck, zCheck] = newID;
-        if (xCheck != 0)
-            voxelMap[xCheck - 1, yCheck, zCheck] = newID;
-        if (xCheck != 19)
-            voxelMap[xCheck + 1, yCheck, zCheck] = newID;
-
-        // Remove some more voxels
-        if (yCheck != 0)
-            voxelMap[xCheck, yCheck - 1, zCheck] = newID;
-        if (yCheck != 1)
-            voxelMap[xCheck, yCheck + 1, zCheck] = newID;
-
         if (zCheck != 0)
             voxelMap[xCheck, yCheck, zCheck - 1] = newID;
-        if (zCheck != 19)
+        if (zCheck != VoxelData2.ChunkZ - 1)
             voxelMap[xCheck, yCheck, zCheck + 1] = newID;
 
+        if (yCheck != 0)
+        {
+            voxelMap[xCheck, yCheck - 1, zCheck] = newID;
+            if (zCheck != 0)
+                voxelMap[xCheck, yCheck - 1, zCheck - 1] = newID;
+            if (zCheck != VoxelData2.ChunkZ - 1)
+                voxelMap[xCheck, yCheck - 1, zCheck + 1] = newID;
+        }
+        if (yCheck != VoxelData2.ChunkY - 1)
+        {
+            voxelMap[xCheck, yCheck + 1, zCheck] = newID;
+            if (zCheck != 0)
+                voxelMap[xCheck, yCheck + 1, zCheck - 1] = newID;
+            if (zCheck != VoxelData2.ChunkZ - 1)
+                voxelMap[xCheck, yCheck + 1, zCheck + 1] = newID;
+        }
+
+        if (xCheck != 0)
+        {
+            voxelMap[xCheck - 1, yCheck, zCheck] = newID;
+            if (zCheck != 0)
+                voxelMap[xCheck - 1, yCheck, zCheck - 1] = newID;
+            if (zCheck != VoxelData2.ChunkZ - 1)
+                voxelMap[xCheck - 1, yCheck, zCheck + 1] = newID;
+
+            if (yCheck != 0)
+            {
+                voxelMap[xCheck - 1, yCheck - 1, zCheck] = newID;
+                if (zCheck != 0)
+                    voxelMap[xCheck - 1, yCheck - 1, zCheck - 1] = newID;
+                if (zCheck != VoxelData2.ChunkZ - 1)
+                    voxelMap[xCheck - 1, yCheck - 1, zCheck + 1] = newID;
+            }
+            if (yCheck != VoxelData2.ChunkY - 1)
+            {
+                voxelMap[xCheck - 1, yCheck + 1, zCheck] = newID;
+                if (zCheck != 0)
+                    voxelMap[xCheck - 1, yCheck + 1, zCheck - 1] = newID;
+                if (zCheck != VoxelData2.ChunkZ - 1)
+                    voxelMap[xCheck - 1, yCheck + 1, zCheck + 1] = newID;
+            }
+        }
+        if (xCheck != VoxelData2.ChunkX - 1)
+        {
+            voxelMap[xCheck + 1, yCheck, zCheck] = newID;
+            if (zCheck != 0)
+                voxelMap[xCheck + 1, yCheck, zCheck - 1] = newID;
+            if (zCheck != VoxelData2.ChunkZ - 1)
+                voxelMap[xCheck + 1, yCheck, zCheck + 1] = newID;
+
+            if (yCheck != 0)
+            {
+                voxelMap[xCheck + 1, yCheck - 1, zCheck] = newID;
+                if (zCheck != 0)
+                    voxelMap[xCheck + 1, yCheck - 1, zCheck - 1] = newID;
+                if (zCheck != VoxelData2.ChunkZ - 1)
+                    voxelMap[xCheck + 1, yCheck - 1, zCheck + 1] = newID;
+            }
+            if (yCheck != VoxelData2.ChunkY - 1)
+            {
+                voxelMap[xCheck + 1, yCheck + 1, zCheck] = newID;
+                if (zCheck != 0)
+                    voxelMap[xCheck + 1, yCheck + 1, zCheck - 1] = newID;
+                if (zCheck != VoxelData2.ChunkZ - 1)
+                    voxelMap[xCheck + 1, yCheck + 1, zCheck + 1] = newID;
+            }
+        }
         UpdateChunk();
     }
 
     void PopulateVoxelMap()
     {
 
-        for (int z = 0; z < VoxelData2.ChunkWidth; z++)
+        for (int z = 0; z < VoxelData2.ChunkZ; z++)
         {
-            for (int x = 0; x < VoxelData2.ChunkWidth; x++)
+            for (int x = 0; x < VoxelData2.ChunkX; x++)
             {
-                for (int y = 0; y < VoxelData2.ChunkHeight; y++)
+                for (int y = 0; y < VoxelData2.ChunkY; y++)
                 {
 
                     voxelMap[x, y, z] = 1;
@@ -130,7 +199,7 @@ public class Chunk2 : MonoBehaviour
         int y = Mathf.FloorToInt(pos.y);
         int z = Mathf.FloorToInt(pos.z);
 
-        if (x < 0 || x > VoxelData2.ChunkWidth - 1 || y < 0 || y > VoxelData2.ChunkHeight - 1 || z < 0 || z > VoxelData2.ChunkWidth - 1)
+        if (x < 0 || x > VoxelData2.ChunkX - 1 || y < 0 || y > VoxelData2.ChunkY - 1 || z < 0 || z > VoxelData2.ChunkZ - 1)
             return false;
         else
         {
